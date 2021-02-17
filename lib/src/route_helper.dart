@@ -120,3 +120,4 @@ Route<dynamic> onGenerateRoute({
 }
 
 typedef RouteWrapper = FFRouteSettings Function(FFRouteSettings pageRoute);
+typedef PageWrapper = FFPage Function(FFPage pageRoute);

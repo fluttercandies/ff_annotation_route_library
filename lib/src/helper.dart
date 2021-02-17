@@ -2,6 +2,16 @@ import 'dart:convert';
 
 import 'dart:developer';
 
+class FFConvert {
+  FFConvert._();
+  static T Function<T>(dynamic value) convert = <T>(dynamic value) {
+    if (value == null) {
+      return null;
+    }
+    return json.decode(value.toString()) as T;
+  };
+}
+
 T asT<T>(dynamic value, [T defaultValue]) {
   if (value is T) {
     return value;
@@ -12,16 +22,16 @@ T asT<T>(dynamic value, [T defaultValue]) {
       if ('' is T) {
         return valueS as T;
       } else if (0 is T) {
-        return int.tryParse(valueS) as T;
+        return int.parse(valueS) as T;
       } else if (0.0 is T) {
-        return double.tryParse(valueS) as T;
+        return double.parse(valueS) as T;
       } else if (false is T) {
         if (valueS == '0' || valueS == '1') {
           return (valueS == '1') as T;
         }
-        return bool.fromEnvironment(value.toString()) as T;
-      } else if (value is List || value is Map) {
-        return jsonDecode(valueS) as T;
+        return bool.fromEnvironment(valueS) as T;
+      } else {
+        return FFConvert.convert<T>(valueS);
       }
     }
   } catch (e, stackTrace) {
