@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:ff_annotation_route_core/ff_annotation_route_core.dart';
@@ -100,10 +101,10 @@ class FFRouteSettings extends RouteSettings {
     );
   }
 
-  FFPage toFFPage({
+  FFPage<T> toFFPage<T>({
     String name,
     Object arguments,
-    LocalKey key,
+    @required LocalKey key,
     Widget widget,
     bool showStatusBar,
     String routeName,
@@ -111,7 +112,7 @@ class FFRouteSettings extends RouteSettings {
     String description,
     Map<String, dynamic> exts,
   }) {
-    return FFPage(
+    return FFPage<T>(
       name: name ?? this.name,
       arguments: arguments ?? this.arguments,
       key: key,
@@ -136,18 +137,19 @@ class FFRouteSettings extends RouteSettings {
 }
 
 /// Navigator 2.0
-class FFPage extends Page<dynamic> {
-  const FFPage({
+class FFPage<T extends Object> extends Page<T> {
+  FFPage({
     @required String name,
+    @required LocalKey key,
+    @required this.widget,
     Object arguments,
-    LocalKey key,
-    this.widget,
     this.showStatusBar,
     this.routeName,
     this.pageRouteType,
     this.description,
     this.exts,
-  }) : super(
+  })  : assert(key != null, 'it should provide an unique key'),
+        super(
           key: key,
           name: name,
           arguments: arguments,
@@ -171,21 +173,45 @@ class FFPage extends Page<dynamic> {
   /// The extend arguments
   final Map<String, dynamic> exts;
 
+  /// A future that completes when this route is popped off the navigator.
+  ///
+  /// The future completes with the value given to [Navigator.pop], if any, or
+  /// else the value of [null].
+  Future<T> get popped => _popCompleter.future;
+  final Completer<T> _popCompleter = Completer<T>();
+  bool get isCompleted => _popCompleter.isCompleted;
+  bool didPop([T result]) {
+    if (!_popCompleter.isCompleted) {
+      _popCompleter.complete(result);
+    }
+    return true;
+  }
+
   @override
-  Route<dynamic> createRoute(BuildContext context) {
+  Route<T> createRoute(BuildContext context) {
+    final Route<T> route = _createRoute(context);
+    return route
+      ..popped.then((T value) {
+        if (!isCompleted) {
+          _popCompleter.complete(value);
+        }
+      });
+  }
+
+  Route<T> _createRoute(BuildContext context) {
     switch (pageRouteType) {
       case PageRouteType.material:
-        return MaterialPageRoute<dynamic>(
+        return MaterialPageRoute<T>(
           settings: this,
           builder: (BuildContext _) => widget,
         );
       case PageRouteType.cupertino:
-        return CupertinoPageRoute<dynamic>(
+        return CupertinoPageRoute<T>(
           settings: this,
           builder: (BuildContext _) => widget,
         );
       case PageRouteType.transparent:
-        return FFTransparentPageRoute<dynamic>(
+        return FFTransparentPageRoute<T>(
           settings: this,
           pageBuilder: (
             BuildContext _,
@@ -196,11 +222,11 @@ class FFPage extends Page<dynamic> {
         );
       default:
         return kIsWeb || !Platform.isIOS
-            ? MaterialPageRoute<dynamic>(
+            ? MaterialPageRoute<T>(
                 settings: this,
                 builder: (BuildContext _) => widget,
               )
-            : CupertinoPageRoute<dynamic>(
+            : CupertinoPageRoute<T>(
                 settings: this,
                 builder: (BuildContext _) => widget,
               );
@@ -208,7 +234,7 @@ class FFPage extends Page<dynamic> {
   }
 
   @override
-  FFPage copyWith({
+  FFPage<T> copyWith({
     String name,
     Object arguments,
     LocalKey key,
@@ -219,7 +245,7 @@ class FFPage extends Page<dynamic> {
     String description,
     Map<String, dynamic> exts,
   }) {
-    return FFPage(
+    return FFPage<T>(
       name: name ?? this.name,
       arguments: arguments ?? this.arguments,
       key: key ?? this.key,

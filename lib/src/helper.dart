@@ -4,6 +4,11 @@ import 'dart:developer';
 
 class FFConvert {
   FFConvert._();
+
+  /// simple types(int,double,bool etc.) are handled, but not all of them.
+  /// for example, you can type in web browser
+  /// http://localhost:64916/#flutterCandies://testPageF?list=[4,5,6]&map={"ddd":123}&testMode={"id":2,"isTest":true}
+  /// you should override following method, and convert queryParameters base on your case.
   static T Function<T>(dynamic value) convert = <T>(dynamic value) {
     if (value == null) {
       return null;
@@ -31,7 +36,7 @@ T asT<T>(dynamic value, [T defaultValue]) {
         }
         return bool.fromEnvironment(valueS) as T;
       } else {
-        return FFConvert.convert<T>(valueS);
+        return FFConvert.convert<T>(value);
       }
     }
   } catch (e, stackTrace) {

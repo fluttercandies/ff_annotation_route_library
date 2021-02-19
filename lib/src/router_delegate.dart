@@ -6,6 +6,9 @@ import 'route_helper.dart';
 
 typedef NavigatorWrapper = Widget Function(Navigator navigator);
 
+/// Signature for the [FFRouterDelegate.popUntil] predicate argument.
+typedef PagePredicate = bool Function(FFPage<dynamic> page);
+
 class FFRouterDelegate extends RouterDelegate<RouteSettings>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteSettings> {
   FFRouterDelegate({
@@ -18,7 +21,7 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
   }) : navigatorKey = GlobalKey<NavigatorState>();
   final bool reportsRouteUpdateToEngine;
   final PopPageCallback onPopPage;
-  final List<FFPage> _pages = <FFPage>[];
+  final List<FFPage<dynamic>> _pages = <FFPage<dynamic>>[];
   final NavigatorWrapper navigatorWrapper;
   final PageWrapper pageWrapper;
   final FFRouteSettings Function({
@@ -28,11 +31,9 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
 
   /// A list of observers for this navigator.
   final List<NavigatorObserver> observers;
-  List<FFPage> get pages => _pages;
+  List<FFPage<dynamic>> get pages => _pages;
   @override
   final GlobalKey<NavigatorState> navigatorKey;
-
-  bool get canPop => navigatorKey?.currentState?.canPop();
 
   NavigatorState get navigatorState => navigatorKey?.currentState;
 
@@ -40,15 +41,6 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
     final RouterDelegate<dynamic> delegate = Router.of(context).routerDelegate;
     assert(delegate is FFRouterDelegate, 'Delegate type must match');
     return delegate as FFRouterDelegate;
-  }
-
-  void pushNamed(
-    String routeName, {
-    Object arguments,
-  }) {
-    _pages.add(getRoutePage(
-        name: routeName, arguments: arguments as Map<String, dynamic>));
-    notifyListeners();
   }
 
   /// RootBackButtonDispatcher / ChildBackButtonDispatcher
@@ -70,16 +62,17 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
   @override
   Widget build(BuildContext context) {
     final Navigator navigator = Navigator(
-      pages: <Page<dynamic>>[...pages],
+      pages: pages.toList(),
       key: navigatorKey,
       reportsRouteUpdateToEngine: reportsRouteUpdateToEngine ?? kIsWeb,
       onPopPage: onPopPage ??
           (Route<dynamic> route, dynamic result) {
             if (_pages.isNotEmpty) {
-              if (_pages.last.name == route.settings.name) {
-                _pages.removeLast();
-                notifyListeners();
-              }
+              final FFPage<dynamic> removed = _pages.lastWhere(
+                  (FFPage<dynamic> element) =>
+                      element.name == route.settings.name);
+              _pages.remove(removed);
+              updatePages();
             }
             return route.didPop(result);
           },
@@ -110,15 +103,6 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
     return SynchronousFuture<void>(null);
   }
 
-  FFPage getRoutePage({String name, Map<String, dynamic> arguments}) {
-    FFPage ffPage =
-        getRouteSettings(name: name, arguments: arguments).toFFPage();
-    if (pageWrapper != null) {
-      ffPage = pageWrapper(ffPage);
-    }
-    return ffPage;
-  }
-
   /// Called by the [Router] when it detects a route information may have
   /// changed as a result of rebuild.
   ///
@@ -143,4 +127,127 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
   @override
   RouteSettings get currentConfiguration =>
       _pages.isNotEmpty ? _pages.last : null;
+
+  FFPage<T> getRoutePage<T extends Object>(
+      {String name, Map<String, dynamic> arguments}) {
+    FFPage<T> ffPage =
+        getRouteSettings(name: name, arguments: arguments).toFFPage<T>(
+      key: getUniqueKey(
+        name: name,
+        arguments: arguments,
+      ),
+    );
+    if (pageWrapper != null) {
+      ffPage = pageWrapper(ffPage);
+    }
+    return ffPage;
+  }
+
+  /// navigator
+
+  /// pop
+  bool canPop() => navigatorKey?.currentState?.canPop();
+
+  void pop<T extends Object>([T result]) {
+    navigatorState.pop(result);
+  }
+
+  Future<bool> maybePop<T extends Object>([T result]) {
+    return navigatorState.maybePop(result);
+  }
+
+  Future<T> popAndPushNamed<T extends Object>(
+    String routeName, {
+    T result,
+    Map<String, dynamic> arguments,
+  }) {
+    pop<T>(result);
+    return pushNamed<T>(routeName, arguments: arguments);
+  }
+
+  void popUntil(PagePredicate predicate) {
+    _popUntil(predicate);
+    updatePages();
+  }
+
+  void _popUntil(PagePredicate predicate) {
+    final List<FFPage<dynamic>> removed = <FFPage<dynamic>>[];
+    for (int i = pages.length - 1; i >= 0; i--) {
+      final FFPage<dynamic> page = pages[i];
+      if (predicate(page)) {
+        break;
+      }
+      removed.add(page);
+    }
+    pages.removeWhere((FFPage<dynamic> element) => removed.contains(element));
+  }
+
+  /// pop
+
+  /// push
+  Future<T> pushNamed<T extends Object>(
+    String routeName, {
+    Map<String, dynamic> arguments,
+  }) {
+    final FFPage<T> page =
+        getRoutePage<T>(name: routeName, arguments: arguments);
+    pages.add(page);
+    updatePages();
+    return page.popped;
+  }
+
+  Future<T> push<T extends Object>(
+    FFPage<T> page,
+  ) {
+    pages.add(page);
+    updatePages();
+    return page.popped;
+  }
+
+  Future<T> pushAndRemoveUntil<T extends Object>(
+    FFPage<T> newPage,
+    PagePredicate predicate,
+  ) {
+    _popUntil(predicate);
+    return push<T>(newPage);
+  }
+
+  Future<T> pushNamedAndRemoveUntil<T extends Object>(
+    String newRouteName,
+    PagePredicate predicate, {
+    Map<String, dynamic> arguments,
+  }) {
+    _popUntil(predicate);
+    return pushNamed<T>(newRouteName, arguments: arguments);
+  }
+
+  /// push
+
+  /// navigator
+
+  void updatePages() {
+    _debugCheckDuplicatedPageKeys();
+    notifyListeners();
+  }
+
+  void _debugCheckDuplicatedPageKeys() {
+    assert(() {
+      final Set<Key> keyReservation = <Key>{};
+      for (final Page<dynamic> page in pages) {
+        if (page.key != null) {
+          assert(!keyReservation.contains(page.key));
+          keyReservation.add(page.key);
+        }
+      }
+      return true;
+    }());
+  }
+
+  LocalKey getUniqueKey({
+    @required String name,
+    Map<String, dynamic> arguments,
+  }) {
+    return ValueKey<String>(
+        '$name${arguments == null ? '' : '-$arguments'}${_pages.length}');
+  }
 }
