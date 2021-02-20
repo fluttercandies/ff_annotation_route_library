@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
+/// A delegate that is used by the [Router] widget to parse a route information
+/// into a configuration of type [RouteSettings].
 class FFRouteInformationParser extends RouteInformationParser<RouteSettings> {
   /// Converts the given route information into parsed data to pass to a
-  /// [RouterDelegate].
+  /// [FFRouterDelegate].
   ///
   /// The method should return a future which completes when the parsing is
   /// complete. The parsing may be asynchronous if, e.g., the parser needs to
@@ -29,6 +31,7 @@ class FFRouteInformationParser extends RouteInformationParser<RouteSettings> {
   }
 
   /// Restore the route information from the given configuration.
+  /// [FFRouterDelegate.currentConfiguration]
   ///
   /// This is not required if you do not opt for the route information reporting
   /// , which is used for updating browser history for the web application. If

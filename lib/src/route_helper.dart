@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'page.dart';
 
+/// The NavigatorObserver to listen route change
 class FFNavigatorObserver extends NavigatorObserver {
   FFNavigatorObserver({this.routeChange});
 
@@ -39,9 +40,12 @@ class FFNavigatorObserver extends NavigatorObserver {
   }
 }
 
+/// Route change call back
+/// [FFNavigatorObserver.routeChange]
 typedef RouteChange = void Function(
     Route<dynamic> newRoute, Route<dynamic> oldRoute);
 
+/// Transparent Page Route
 class FFTransparentPageRoute<T> extends PageRouteBuilder<T> {
   FFTransparentPageRoute({
     RouteSettings settings,
@@ -84,30 +88,25 @@ Widget _defaultTransitionsBuilder(
   );
 }
 
+/// onGenerateRoute for Navigator 1.0
 Route<dynamic> onGenerateRoute({
-  @required
-      RouteSettings settings,
-  @required
-      FFRouteSettings Function({
-    @required String name,
-    Map<String, dynamic> arguments,
-  })
-          getRouteSettings,
-  Widget notFoundFallback,
+  @required RouteSettings settings,
+  @required GetRouteSettings getRouteSettings,
+  Widget notFoundWidget,
   Map<String, dynamic> arguments,
-  RouteWrapper routeWrapper,
+  RouteSettingsWrapper routeSettingsWrapper,
 }) {
   arguments ??= settings.arguments as Map<String, dynamic>;
 
-  FFRouteSettings pageRoute = getRouteSettings(
+  FFRouteSettings routeSettings = getRouteSettings(
     name: settings.name,
     arguments: arguments,
   );
 
-  if (routeWrapper != null) {
-    pageRoute = routeWrapper(pageRoute);
+  if (routeSettingsWrapper != null) {
+    routeSettings = routeSettingsWrapper(routeSettings);
   }
-  final Widget page = pageRoute.widget ?? notFoundFallback;
+  final Widget page = routeSettings.widget ?? notFoundWidget;
   if (page == null) {
     throw Exception(
       '''Route "${settings.name}" returned null. Route Widget must never return null,
@@ -116,8 +115,18 @@ Route<dynamic> onGenerateRoute({
     );
   }
 
-  return pageRoute.createRoute();
+  return routeSettings.createRoute();
 }
 
-typedef RouteWrapper = FFRouteSettings Function(FFRouteSettings pageRoute);
+/// [onGenerateRoute], re-define FFRouteSettings in this call back
+typedef RouteSettingsWrapper = FFRouteSettings Function(
+    FFRouteSettings pageRoute);
+
+/// [FFRouterDelegate.pageWrapper], re-define FFPage in this call back
 typedef PageWrapper = FFPage<T> Function<T extends Object>(FFPage<T> pageRoute);
+
+/// The getRouteSettings method which is created by [ff_annotation_route]
+typedef GetRouteSettings = FFRouteSettings Function({
+  @required String name,
+  Map<String, dynamic> arguments,
+});

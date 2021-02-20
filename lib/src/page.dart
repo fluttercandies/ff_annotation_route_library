@@ -180,6 +180,8 @@ class FFPage<T extends Object> extends Page<T> {
   Future<T> get popped => _popCompleter.future;
   final Completer<T> _popCompleter = Completer<T>();
   bool get isCompleted => _popCompleter.isCompleted;
+
+  /// pop this route
   bool didPop([T result]) {
     if (!_popCompleter.isCompleted) {
       _popCompleter.complete(result);

@@ -4,11 +4,14 @@ import 'package:flutter/widgets.dart';
 import 'page.dart';
 import 'route_helper.dart';
 
+/// [FFRouterDelegate.navigatorWrapper]
 typedef NavigatorWrapper = Widget Function(Navigator navigator);
 
 /// Signature for the [FFRouterDelegate.popUntil] predicate argument.
 typedef PagePredicate = bool Function(FFPage<dynamic> page);
 
+/// A delegate that is used by the [Router] widget to build and configure a
+/// navigating widget.
 class FFRouterDelegate extends RouterDelegate<RouteSettings>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteSettings> {
   FFRouterDelegate({
@@ -19,24 +22,62 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
     this.observers,
     this.pageWrapper,
   }) : navigatorKey = GlobalKey<NavigatorState>();
+
+  /// Whether this navigator should report route update message back to the
+  /// engine when the top-most route changes.
+  ///
+  /// If the property is set to true, this navigator automatically sends the
+  /// route update message to the engine when it detects top-most route changes.
+  /// The messages are used by the web engine to update the browser URL bar.
+  ///
+  /// If there are multiple navigators in the widget tree, at most one of them
+  /// can set this property to true (typically, the top-most one created from
+  /// the [WidgetsApp]). Otherwise, the web engine may receive multiple route
+  /// update messages from different navigators and fail to update the URL
+  /// bar.
+  ///
+  /// Defaults to false.
   final bool reportsRouteUpdateToEngine;
+
+  /// Called when [pop] is invoked but the current [Route] corresponds to a
+  /// [Page] found in the [pages] list.
+  ///
+  /// The `result` argument is the value with which the route is to complete
+  /// (e.g. the value returned from a dialog).
+  ///
+  /// This callback is responsible for calling [Route.didPop] and returning
+  /// whether this pop is successful.
+  ///
+  /// The [Navigator] widget should be rebuilt with a [pages] list that does not
+  /// contain the [Page] for the given [Route]. The next time the [pages] list
+  /// is updated, if the [Page] corresponding to this [Route] is still present,
+  /// it will be interpreted as a new route to display.
   final PopPageCallback onPopPage;
-  final List<FFPage<dynamic>> _pages = <FFPage<dynamic>>[];
+
+  /// The wrapper of Navigator
   final NavigatorWrapper navigatorWrapper;
+
+  /// The wrapper of Page, you can redefine page in this call back
   final PageWrapper pageWrapper;
-  final FFRouteSettings Function({
-    @required String name,
-    Map<String, dynamic> arguments,
-  }) getRouteSettings;
+
+  /// The getRouteSettings method which is created by [ff_annotation_route]
+  final GetRouteSettings getRouteSettings;
 
   /// A list of observers for this navigator.
   final List<NavigatorObserver> observers;
+
+  final List<FFPage<dynamic>> _pages = <FFPage<dynamic>>[];
+
+  /// The current pages of navigator
   List<FFPage<dynamic>> get pages => _pages;
+
+  /// The key used for retrieving the current navigator
   @override
   final GlobalKey<NavigatorState> navigatorKey;
 
   NavigatorState get navigatorState => navigatorKey?.currentState;
 
+  /// Retrieves the immediate [RouterDelegate] ancestor from the given context.
   static FFRouterDelegate of(BuildContext context) {
     final RouterDelegate<dynamic> delegate = Router.of(context).routerDelegate;
     assert(delegate is FFRouterDelegate, 'Delegate type must match');
@@ -54,6 +95,13 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
   /// Consider using a [SynchronousFuture] if the result can be computed
   /// synchronously, so that the [Router] does not need to wait for the next
   /// microtask to schedule a build.
+  ///
+  /// Handle Android hardware back button is a global event in stack.
+  /// The element are inserted in the stack by passing BackButtonDispacher to
+  /// your routers [RootBackButtonDispacher for the root navigator, ChildBackButtonDispacherwhich call takePriority for the others].
+  /// override this method if you have specific operational requirement
+  /// The demo [https://github.com/fluttercandies/ff_annotation_route/tree/master/example1/lib/nested_router_demo.dart]
+  ///
   @override
   Future<bool> popRoute() async {
     return super.popRoute();
@@ -128,14 +176,14 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
   RouteSettings get currentConfiguration =>
       _pages.isNotEmpty ? _pages.last : null;
 
-  FFPage<T> getRoutePage<T extends Object>(
-      {String name, Map<String, dynamic> arguments}) {
+  ///
+  FFPage<T> getRoutePage<T extends Object>({
+    @required String name,
+    Map<String, dynamic> arguments,
+  }) {
     FFPage<T> ffPage =
         getRouteSettings(name: name, arguments: arguments).toFFPage<T>(
-      key: getUniqueKey(
-        name: name,
-        arguments: arguments,
-      ),
+      key: getUniqueKey(),
     );
     if (pageWrapper != null) {
       ffPage = pageWrapper(ffPage);
@@ -146,16 +194,26 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
   /// navigator
 
   /// pop
+
+  /// Whether the navigator that most tightly encloses the given context can be
+  /// popped.
   bool canPop() => navigatorKey?.currentState?.canPop();
 
+  /// Pop the top-most route off the navigator that most tightly encloses the
+  /// given context.
   void pop<T extends Object>([T result]) {
     navigatorState.pop(result);
   }
 
+  /// Consults the current route's [Route.willPop] method, and acts accordingly,
+  /// potentially popping the route as a result; returns whether the pop request
+  /// should be considered handled.
   Future<bool> maybePop<T extends Object>([T result]) {
     return navigatorState.maybePop(result);
   }
 
+  /// Pop the current route off the navigator and push a named route in its
+  /// place.
   Future<T> popAndPushNamed<T extends Object>(
     String routeName, {
     T result,
@@ -165,6 +223,8 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
     return pushNamed<T>(routeName, arguments: arguments);
   }
 
+  /// Calls [pop] repeatedly on the navigator that most tightly encloses the
+  /// given context until the predicate returns true.
   void popUntil(PagePredicate predicate) {
     _popUntil(predicate);
     updatePages();
@@ -185,6 +245,9 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
   /// pop
 
   /// push
+
+  /// Push a named route onto the navigator that most tightly encloses the given
+  /// context.
   Future<T> pushNamed<T extends Object>(
     String routeName, {
     Map<String, dynamic> arguments,
@@ -196,6 +259,7 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
     return page.popped;
   }
 
+  /// Push the given page onto the navigator.
   Future<T> push<T extends Object>(
     FFPage<T> page,
   ) {
@@ -204,6 +268,9 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
     return page.popped;
   }
 
+  /// Push the given page onto the navigator that most tightly encloses the
+  /// given context, and then remove all the previous routes until the
+  /// `predicate` returns true.
   Future<T> pushAndRemoveUntil<T extends Object>(
     FFPage<T> newPage,
     PagePredicate predicate,
@@ -212,6 +279,9 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
     return push<T>(newPage);
   }
 
+  /// Push the route with the given name onto the navigator that most tightly
+  /// encloses the given context, and then remove all the previous routes until
+  /// the `predicate` returns true.
   Future<T> pushNamedAndRemoveUntil<T extends Object>(
     String newRouteName,
     PagePredicate predicate, {
@@ -225,6 +295,7 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
 
   /// navigator
 
+  /// call this after you change pages
   void updatePages() {
     _debugCheckDuplicatedPageKeys();
     notifyListeners();
@@ -243,11 +314,6 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
     }());
   }
 
-  LocalKey getUniqueKey({
-    @required String name,
-    Map<String, dynamic> arguments,
-  }) {
-    return ValueKey<String>(
-        '$name${arguments == null ? '' : '-$arguments'}${_pages.length}');
-  }
+  /// Unique Key for Page
+  UniqueKey getUniqueKey() => UniqueKey();
 }
