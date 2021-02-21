@@ -16,12 +16,19 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteSettings> {
   FFRouterDelegate({
     @required this.getRouteSettings,
-    this.reportsRouteUpdateToEngine = true,
+    this.reportsRouteUpdateToEngine,
     this.onPopPage,
     this.navigatorWrapper,
     this.observers,
     this.pageWrapper,
+    this.transitionDelegate = const DefaultTransitionDelegate<dynamic>(),
   }) : navigatorKey = GlobalKey<NavigatorState>();
+
+  /// The delegate used for deciding how routes transition in or off the screen
+  /// during the [pages] updates.
+  ///
+  /// Defaults to [DefaultTransitionDelegate] if not specified, cannot be null.
+  final TransitionDelegate<dynamic> transitionDelegate;
 
   /// Whether this navigator should report route update message back to the
   /// engine when the top-most route changes.
@@ -36,7 +43,7 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
   /// update messages from different navigators and fail to update the URL
   /// bar.
   ///
-  /// Defaults to false.
+  /// Defaults to null(true on Web).
   final bool reportsRouteUpdateToEngine;
 
   /// Called when [pop] is invoked but the current [Route] corresponds to a
@@ -112,6 +119,7 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
     final Navigator navigator = Navigator(
       pages: pages.toList(),
       key: navigatorKey,
+      transitionDelegate: transitionDelegate,
       reportsRouteUpdateToEngine: reportsRouteUpdateToEngine ?? kIsWeb,
       onPopPage: onPopPage ??
           (Route<dynamic> route, dynamic result) {
