@@ -123,17 +123,16 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
       reportsRouteUpdateToEngine: reportsRouteUpdateToEngine ?? kIsWeb,
       onPopPage: onPopPage ??
           (Route<dynamic> route, dynamic result) {
-            if (_pages.length > 1) {
+            if (_pages.length > 1 && route.settings is FFPage) {
               final FFPage<dynamic> removed = _pages.lastWhere(
                   (FFPage<dynamic> element) =>
                       element.name == route.settings.name);
               if (removed != null) {
                 _pages.remove(removed);
                 updatePages();
-                return route.didPop(result);
               }
             }
-            return false;
+            return route.didPop(result);
           },
       observers: <NavigatorObserver>[
         HeroController(),

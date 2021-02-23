@@ -1,6 +1,6 @@
 name: ff_annotation_route_library
 description: The library for ff_annotation_route.
-version: 1.2.0
+version: 1.2.1
 homepage: https://github.com/fluttercandies/ff_annotation_route_library
 
 environment:

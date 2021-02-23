@@ -34,7 +34,7 @@ T asT<T>(dynamic value, [T defaultValue]) {
         if (valueS == '0' || valueS == '1') {
           return (valueS == '1') as T;
         }
-        return bool.fromEnvironment(valueS) as T;
+        return (valueS == 'true') as T;
       } else {
         return FFConvert.convert<T>(value);
       }
