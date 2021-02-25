@@ -115,6 +115,10 @@ Route<dynamic> onGenerateRoute({
     );
   }
 
+  if (routeSettings.widget == null) {
+    routeSettings = routeSettings.copyWith(widget: page);
+  }
+
   return routeSettings.createRoute();
 }
 

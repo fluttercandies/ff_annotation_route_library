@@ -1,4 +1,8 @@
-## 1.2.1
+## 1.2.2
+
+- Fix FFRouteSettings's widget is null.
+  
+# 1.2.1
 
 - Fix bool convert and popPage.
 ## 1.2.0

@@ -81,7 +81,6 @@ class FFRouteSettings extends RouteSettings {
   FFRouteSettings copyWith({
     String name,
     Object arguments,
-    LocalKey key,
     Widget widget,
     bool showStatusBar,
     String routeName,
