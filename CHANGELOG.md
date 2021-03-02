@@ -1,3 +1,7 @@
+## 1.2.4-nullsafety
+
+- Fix T?
+
 ## 1.2.3-nullsafety
 
 - Fix non-nullable error

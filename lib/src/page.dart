@@ -100,7 +100,7 @@ class FFRouteSettings extends RouteSettings {
     );
   }
 
-  FFPage<T> toFFPage<T>({
+  FFPage<T> toFFPage<T extends Object?>({
     String? name,
     Object? arguments,
     required LocalKey key,
@@ -136,7 +136,7 @@ class FFRouteSettings extends RouteSettings {
 }
 
 /// Navigator 2.0
-class FFPage<T extends Object?> extends Page<T> {
+class FFPage<T> extends Page<T> {
   FFPage({
     required String name,
     required LocalKey key,

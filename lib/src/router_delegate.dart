@@ -188,11 +188,11 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
   RouteSettings? get currentConfiguration =>
       _pages.isNotEmpty ? _pages.last : null;
 
-  FFPage<T> getRoutePage<T extends Object>({
+  FFPage<T?> getRoutePage<T extends Object?>({
     required String name,
     Map<String, dynamic>? arguments,
   }) {
-    FFPage<T> ffPage =
+    FFPage<T?> ffPage =
         getRouteSettings(name: name, arguments: arguments).toFFPage<T>(
       key: getUniqueKey(),
     );
@@ -212,20 +212,20 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
 
   /// Pop the top-most route off the navigator that most tightly encloses the
   /// given context.
-  void pop<T extends Object>([T? result]) {
-    navigatorState!.pop(result);
+  void pop<T extends Object?>([T? result]) {
+    navigatorState!.pop<T>(result);
   }
 
   /// Consults the current route's [Route.willPop] method, and acts accordingly,
   /// potentially popping the route as a result; returns whether the pop request
   /// should be considered handled.
-  Future<bool> maybePop<T extends Object>([T? result]) {
-    return navigatorState!.maybePop(result);
+  Future<bool> maybePop<T extends Object?>([T? result]) {
+    return navigatorState!.maybePop<T>(result);
   }
 
   /// Pop the current route off the navigator and push a named route in its
   /// place.
-  Future<T> popAndPushNamed<T extends Object>(
+  Future<T?> popAndPushNamed<T extends Object?>(
     String routeName, {
     T? result,
     Map<String, dynamic>? arguments,
@@ -259,11 +259,11 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
 
   /// Push a named route onto the navigator that most tightly encloses the given
   /// context.
-  Future<T> pushNamed<T extends Object>(
+  Future<T?> pushNamed<T extends Object?>(
     String routeName, {
     Map<String, dynamic>? arguments,
   }) {
-    final FFPage<T> page =
+    final FFPage<T?> page =
         getRoutePage<T>(name: routeName, arguments: arguments);
     pages.add(page);
     updatePages();
@@ -271,8 +271,8 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
   }
 
   /// Push the given page onto the navigator.
-  Future<T> push<T extends Object>(
-    FFPage<T> page,
+  Future<T?> push<T extends Object?>(
+    FFPage<T?> page,
   ) {
     pages.add(page);
     updatePages();
@@ -282,8 +282,8 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
   /// Push the given page onto the navigator that most tightly encloses the
   /// given context, and then remove all the previous routes until the
   /// `predicate` returns true.
-  Future<T> pushAndRemoveUntil<T extends Object>(
-    FFPage<T> newPage,
+  Future<T?> pushAndRemoveUntil<T extends Object?>(
+    FFPage<T?> newPage,
     PagePredicate predicate,
   ) {
     _popUntil(predicate);
@@ -293,7 +293,7 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
   /// Push the route with the given name onto the navigator that most tightly
   /// encloses the given context, and then remove all the previous routes until
   /// the `predicate` returns true.
-  Future<T> pushNamedAndRemoveUntil<T extends Object>(
+  Future<T?> pushNamedAndRemoveUntil<T extends Object?>(
     String newRouteName,
     PagePredicate predicate, {
     Map<String, dynamic>? arguments,
@@ -314,11 +314,11 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
 
   void _debugCheckDuplicatedPageKeys() {
     assert(() {
-      final Set<Key?> keyReservation = <Key?>{};
+      final Set<Key> keyReservation = <Key>{};
       for (final Page<dynamic> page in pages) {
         if (page.key != null) {
           assert(!keyReservation.contains(page.key));
-          keyReservation.add(page.key);
+          keyReservation.add(page.key!);
         }
       }
       return true;

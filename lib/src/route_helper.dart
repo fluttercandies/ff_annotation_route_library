@@ -122,7 +122,7 @@ typedef RouteSettingsWrapper = FFRouteSettings Function(
     FFRouteSettings pageRoute);
 
 /// [FFRouterDelegate.pageWrapper], re-define FFPage in this call back
-typedef PageWrapper = FFPage<T> Function<T extends Object>(FFPage<T> pageRoute);
+typedef PageWrapper = FFPage<T> Function<T>(FFPage<T> pageRoute);
 
 /// The getRouteSettings method which is created by [ff_annotation_route]
 typedef GetRouteSettings = FFRouteSettings Function({
