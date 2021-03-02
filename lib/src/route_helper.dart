@@ -94,7 +94,7 @@ Route<dynamic> onGenerateRoute({
   arguments ??= settings.arguments as Map<String, dynamic>?;
 
   FFRouteSettings routeSettings = getRouteSettings(
-    name: settings.name,
+    name: settings.name!,
     arguments: arguments,
   );
 
@@ -126,6 +126,6 @@ typedef PageWrapper = FFPage<T> Function<T extends Object>(FFPage<T> pageRoute);
 
 /// The getRouteSettings method which is created by [ff_annotation_route]
 typedef GetRouteSettings = FFRouteSettings Function({
-  required String? name,
+  required String name,
   Map<String, dynamic>? arguments,
 });

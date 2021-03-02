@@ -1,3 +1,7 @@
+## 1.2.3-nullsafety
+
+- Fix non-nullable error
+
 ## 1.2.2-nullsafety.1
 
 - Migrate to non-nullable

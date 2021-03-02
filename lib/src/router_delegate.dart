@@ -156,9 +156,9 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
   /// synchronously, so that the [Router] does not need to wait for the next
   /// microtask to schedule a build.
   @override
-  Future<void> setNewRoutePath(RouteSettings? configuration) {
+  Future<void> setNewRoutePath(RouteSettings configuration) {
     _pages.add(getRoutePage(
-        name: configuration!.name,
+        name: configuration.name!,
         arguments: configuration.arguments as Map<String, dynamic>?));
     return SynchronousFuture<void>(null);
   }
@@ -188,9 +188,8 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
   RouteSettings? get currentConfiguration =>
       _pages.isNotEmpty ? _pages.last : null;
 
-  ///
   FFPage<T> getRoutePage<T extends Object>({
-    required String? name,
+    required String name,
     Map<String, dynamic>? arguments,
   }) {
     FFPage<T> ffPage =

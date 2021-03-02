@@ -21,7 +21,7 @@ packages:
       name: ff_annotation_route_core
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.1.0"
+    version: "1.1.1-nullsafety"
   flutter:
     dependency: "direct main"
     description: flutter
