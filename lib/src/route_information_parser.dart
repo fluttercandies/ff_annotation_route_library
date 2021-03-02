@@ -17,16 +17,15 @@ class FFRouteInformationParser extends RouteInformationParser<RouteSettings> {
   @override
   Future<RouteSettings> parseRouteInformation(
       RouteInformation routeInformation) {
-    final Uri uri = Uri.tryParse(routeInformation.location);
-    String name = routeInformation.location;
-    if (uri.queryParameters.isNotEmpty) {
-      name = routeInformation.location
-          .substring(0, routeInformation.location.indexOf('?'));
+    String name = routeInformation.location!;
+    final Uri? uri = Uri.tryParse(name);
+    if (uri != null && uri.queryParameters.isNotEmpty) {
+      name = name.substring(0, name.indexOf('?'));
     }
 
     return SynchronousFuture<RouteSettings>(RouteSettings(
       name: name,
-      arguments: uri.queryParameters,
+      arguments: uri?.queryParameters,
     ));
   }
 
@@ -42,7 +41,7 @@ class FFRouteInformationParser extends RouteInformationParser<RouteSettings> {
   /// configuration when passed this method's return value
   @override
   RouteInformation restoreRouteInformation(RouteSettings configuration) {
-    String location = configuration.name;
+    String location = configuration.name!;
     if (configuration.arguments != null &&
         configuration.arguments is Map<String, dynamic>) {
       final Map<String, dynamic> arguments =

@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'page.dart';
@@ -8,33 +7,33 @@ import 'page.dart';
 class FFNavigatorObserver extends NavigatorObserver {
   FFNavigatorObserver({this.routeChange});
 
-  final RouteChange routeChange;
+  final RouteChange? routeChange;
 
   @override
-  void didPop(Route<dynamic> route, Route<dynamic> previousRoute) {
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPop(route, previousRoute);
     _didRouteChange(previousRoute, route);
   }
 
   @override
-  void didPush(Route<dynamic> route, Route<dynamic> previousRoute) {
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPush(route, previousRoute);
     _didRouteChange(route, previousRoute);
   }
 
   @override
-  void didRemove(Route<dynamic> route, Route<dynamic> previousRoute) {
+  void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didRemove(route, previousRoute);
     _didRouteChange(previousRoute, route);
   }
 
   @override
-  void didReplace({Route<dynamic> newRoute, Route<dynamic> oldRoute}) {
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
     super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
     _didRouteChange(newRoute, oldRoute);
   }
 
-  void _didRouteChange(Route<dynamic> newRoute, Route<dynamic> oldRoute) {
+  void _didRouteChange(Route<dynamic>? newRoute, Route<dynamic>? oldRoute) {
     // oldRoute may be null when route first time enter.
     routeChange?.call(newRoute, oldRoute);
   }
@@ -43,24 +42,20 @@ class FFNavigatorObserver extends NavigatorObserver {
 /// Route change call back
 /// [FFNavigatorObserver.routeChange]
 typedef RouteChange = void Function(
-    Route<dynamic> newRoute, Route<dynamic> oldRoute);
+    Route<dynamic>? newRoute, Route<dynamic>? oldRoute);
 
 /// Transparent Page Route
 class FFTransparentPageRoute<T> extends PageRouteBuilder<T> {
   FFTransparentPageRoute({
-    RouteSettings settings,
-    @required RoutePageBuilder pageBuilder,
+    RouteSettings? settings,
+    required RoutePageBuilder pageBuilder,
     RouteTransitionsBuilder transitionsBuilder = _defaultTransitionsBuilder,
     Duration transitionDuration = const Duration(milliseconds: 150),
     bool barrierDismissible = false,
-    Color barrierColor,
-    String barrierLabel,
+    Color? barrierColor,
+    String? barrierLabel,
     bool maintainState = true,
-  })  : assert(pageBuilder != null),
-        assert(transitionsBuilder != null),
-        assert(barrierDismissible != null),
-        assert(maintainState != null),
-        super(
+  }) : super(
           settings: settings,
           opaque: false,
           pageBuilder: pageBuilder,
@@ -90,13 +85,13 @@ Widget _defaultTransitionsBuilder(
 
 /// onGenerateRoute for Navigator 1.0
 Route<dynamic> onGenerateRoute({
-  @required RouteSettings settings,
-  @required GetRouteSettings getRouteSettings,
-  Widget notFoundWidget,
-  Map<String, dynamic> arguments,
-  RouteSettingsWrapper routeSettingsWrapper,
+  required RouteSettings settings,
+  required GetRouteSettings getRouteSettings,
+  Widget? notFoundWidget,
+  Map<String, dynamic>? arguments,
+  RouteSettingsWrapper? routeSettingsWrapper,
 }) {
-  arguments ??= settings.arguments as Map<String, dynamic>;
+  arguments ??= settings.arguments as Map<String, dynamic>?;
 
   FFRouteSettings routeSettings = getRouteSettings(
     name: settings.name,
@@ -106,7 +101,7 @@ Route<dynamic> onGenerateRoute({
   if (routeSettingsWrapper != null) {
     routeSettings = routeSettingsWrapper(routeSettings);
   }
-  final Widget page = routeSettings.widget ?? notFoundWidget;
+  final Widget? page = routeSettings.widget ?? notFoundWidget;
   if (page == null) {
     throw Exception(
       '''Route "${settings.name}" returned null. Route Widget must never return null,
@@ -131,6 +126,6 @@ typedef PageWrapper = FFPage<T> Function<T extends Object>(FFPage<T> pageRoute);
 
 /// The getRouteSettings method which is created by [ff_annotation_route]
 typedef GetRouteSettings = FFRouteSettings Function({
-  @required String name,
-  Map<String, dynamic> arguments,
+  required String? name,
+  Map<String, dynamic>? arguments,
 });

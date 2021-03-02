@@ -11,8 +11,8 @@ import 'route_helper.dart';
 /// Navigator 1.0
 class FFRouteSettings extends RouteSettings {
   const FFRouteSettings({
-    @required String name,
-    Object arguments,
+    required String name,
+    Object? arguments,
     this.widget,
     this.showStatusBar,
     this.routeName,
@@ -25,34 +25,34 @@ class FFRouteSettings extends RouteSettings {
         );
 
   /// The Widget base on this route
-  final Widget widget;
+  final Widget? widget;
 
   /// Whether show status bar.
-  final bool showStatusBar;
+  final bool? showStatusBar;
 
   /// The route name to track page
-  final String routeName;
+  final String? routeName;
 
   /// The type of page route
-  final PageRouteType pageRouteType;
+  final PageRouteType? pageRouteType;
 
   /// The description of route
-  final String description;
+  final String? description;
 
   /// The extend arguments
-  final Map<String, dynamic> exts;
+  final Map<String, dynamic>? exts;
 
   Route<dynamic> createRoute() {
     switch (pageRouteType) {
       case PageRouteType.material:
         return MaterialPageRoute<dynamic>(
           settings: this,
-          builder: (BuildContext _) => widget,
+          builder: (BuildContext _) => widget!,
         );
       case PageRouteType.cupertino:
         return CupertinoPageRoute<dynamic>(
           settings: this,
-          builder: (BuildContext _) => widget,
+          builder: (BuildContext _) => widget!,
         );
       case PageRouteType.transparent:
         return FFTransparentPageRoute<dynamic>(
@@ -62,34 +62,34 @@ class FFRouteSettings extends RouteSettings {
             Animation<double> __,
             Animation<double> ___,
           ) =>
-              widget,
+              widget!,
         );
       default:
         return kIsWeb || !Platform.isIOS
             ? MaterialPageRoute<dynamic>(
                 settings: this,
-                builder: (BuildContext _) => widget,
+                builder: (BuildContext _) => widget!,
               )
             : CupertinoPageRoute<dynamic>(
                 settings: this,
-                builder: (BuildContext _) => widget,
+                builder: (BuildContext _) => widget!,
               );
     }
   }
 
   @override
   FFRouteSettings copyWith({
-    String name,
-    Object arguments,
-    Widget widget,
-    bool showStatusBar,
-    String routeName,
-    PageRouteType pageRouteType,
-    String description,
-    Map<String, dynamic> exts,
+    String? name,
+    Object? arguments,
+    Widget? widget,
+    bool? showStatusBar,
+    String? routeName,
+    PageRouteType? pageRouteType,
+    String? description,
+    Map<String, dynamic>? exts,
   }) {
     return FFRouteSettings(
-      name: name ?? this.name,
+      name: name ?? this.name!,
       arguments: arguments ?? this.arguments,
       widget: widget ?? this.widget,
       showStatusBar: showStatusBar ?? this.showStatusBar,
@@ -101,21 +101,21 @@ class FFRouteSettings extends RouteSettings {
   }
 
   FFPage<T> toFFPage<T>({
-    String name,
-    Object arguments,
-    @required LocalKey key,
-    Widget widget,
-    bool showStatusBar,
-    String routeName,
-    PageRouteType pageRouteType,
-    String description,
-    Map<String, dynamic> exts,
+    String? name,
+    Object? arguments,
+    required LocalKey key,
+    Widget? widget,
+    bool? showStatusBar,
+    String? routeName,
+    PageRouteType? pageRouteType,
+    String? description,
+    Map<String, dynamic>? exts,
   }) {
     return FFPage<T>(
-      name: name ?? this.name,
+      name: name ?? this.name!,
       arguments: arguments ?? this.arguments,
       key: key,
-      widget: widget ?? this.widget,
+      widget: widget ?? this.widget!,
       showStatusBar: showStatusBar ?? this.showStatusBar,
       routeName: routeName ?? this.routeName,
       pageRouteType: pageRouteType ?? this.pageRouteType,
@@ -136,19 +136,18 @@ class FFRouteSettings extends RouteSettings {
 }
 
 /// Navigator 2.0
-class FFPage<T extends Object> extends Page<T> {
+class FFPage<T extends Object?> extends Page<T> {
   FFPage({
-    @required String name,
-    @required LocalKey key,
-    @required this.widget,
-    Object arguments,
+    required String name,
+    required LocalKey key,
+    required this.widget,
+    Object? arguments,
     this.showStatusBar,
     this.routeName,
     this.pageRouteType,
     this.description,
     this.exts,
-  })  : assert(key != null, 'it should provide an unique key'),
-        super(
+  }) : super(
           key: key,
           name: name,
           arguments: arguments,
@@ -158,19 +157,19 @@ class FFPage<T extends Object> extends Page<T> {
   final Widget widget;
 
   /// Whether show status bar.
-  final bool showStatusBar;
+  final bool? showStatusBar;
 
   /// The route name to track page
-  final String routeName;
+  final String? routeName;
 
   /// The type of page route
-  final PageRouteType pageRouteType;
+  final PageRouteType? pageRouteType;
 
   /// The description of route
-  final String description;
+  final String? description;
 
   /// The extend arguments
-  final Map<String, dynamic> exts;
+  final Map<String, dynamic>? exts;
 
   /// A future that completes when this route is popped off the navigator.
   ///
@@ -181,7 +180,7 @@ class FFPage<T extends Object> extends Page<T> {
   bool get isCompleted => _popCompleter.isCompleted;
 
   /// pop this route
-  bool didPop([T result]) {
+  bool didPop([T? result]) {
     if (!_popCompleter.isCompleted) {
       _popCompleter.complete(result);
     }
@@ -192,7 +191,7 @@ class FFPage<T extends Object> extends Page<T> {
   Route<T> createRoute(BuildContext context) {
     final Route<T> route = _createRoute(context);
     return route
-      ..popped.then((T value) {
+      ..popped.then((T? value) {
         if (!isCompleted) {
           _popCompleter.complete(value);
         }
@@ -236,20 +235,20 @@ class FFPage<T extends Object> extends Page<T> {
 
   @override
   FFPage<T> copyWith({
-    String name,
-    Object arguments,
-    LocalKey key,
-    Widget widget,
-    bool showStatusBar,
-    String routeName,
-    PageRouteType pageRouteType,
-    String description,
-    Map<String, dynamic> exts,
+    String? name,
+    Object? arguments,
+    LocalKey? key,
+    Widget? widget,
+    bool? showStatusBar,
+    String? routeName,
+    PageRouteType? pageRouteType,
+    String? description,
+    Map<String, dynamic>? exts,
   }) {
     return FFPage<T>(
-      name: name ?? this.name,
+      name: name ?? this.name!,
       arguments: arguments ?? this.arguments,
-      key: key ?? this.key,
+      key: key ?? this.key!,
       widget: widget ?? this.widget,
       showStatusBar: showStatusBar ?? this.showStatusBar,
       routeName: routeName ?? this.routeName,
@@ -260,18 +259,18 @@ class FFPage<T extends Object> extends Page<T> {
   }
 
   FFRouteSettings toFFRouteSettings({
-    String name,
-    Object arguments,
-    LocalKey key,
-    Widget widget,
-    bool showStatusBar,
-    String routeName,
-    PageRouteType pageRouteType,
-    String description,
-    Map<String, dynamic> exts,
+    String? name,
+    Object? arguments,
+    LocalKey? key,
+    Widget? widget,
+    bool? showStatusBar,
+    String? routeName,
+    PageRouteType? pageRouteType,
+    String? description,
+    Map<String, dynamic>? exts,
   }) {
     return FFRouteSettings(
-      name: name ?? this.name,
+      name: name ?? this.name!,
       arguments: arguments ?? this.arguments,
       widget: widget ?? this.widget,
       showStatusBar: showStatusBar ?? this.showStatusBar,

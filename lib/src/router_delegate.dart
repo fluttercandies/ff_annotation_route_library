@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:collection/collection.dart';
 
 import 'page.dart';
 import 'route_helper.dart';
@@ -15,7 +16,7 @@ typedef PagePredicate = bool Function(FFPage<dynamic> page);
 class FFRouterDelegate extends RouterDelegate<RouteSettings>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteSettings> {
   FFRouterDelegate({
-    @required this.getRouteSettings,
+    required this.getRouteSettings,
     this.reportsRouteUpdateToEngine,
     this.onPopPage,
     this.navigatorWrapper,
@@ -44,7 +45,7 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
   /// bar.
   ///
   /// Defaults to null(true on Web).
-  final bool reportsRouteUpdateToEngine;
+  final bool? reportsRouteUpdateToEngine;
 
   /// Called when [pop] is invoked but the current [Route] corresponds to a
   /// [Page] found in the [pages] list.
@@ -59,19 +60,19 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
   /// contain the [Page] for the given [Route]. The next time the [pages] list
   /// is updated, if the [Page] corresponding to this [Route] is still present,
   /// it will be interpreted as a new route to display.
-  final PopPageCallback onPopPage;
+  final PopPageCallback? onPopPage;
 
   /// The wrapper of Navigator
-  final NavigatorWrapper navigatorWrapper;
+  final NavigatorWrapper? navigatorWrapper;
 
   /// The wrapper of Page, you can redefine page in this call back
-  final PageWrapper pageWrapper;
+  final PageWrapper? pageWrapper;
 
   /// The getRouteSettings method which is created by [ff_annotation_route]
   final GetRouteSettings getRouteSettings;
 
   /// A list of observers for this navigator.
-  final List<NavigatorObserver> observers;
+  final List<NavigatorObserver>? observers;
 
   final List<FFPage<dynamic>> _pages = <FFPage<dynamic>>[];
 
@@ -82,7 +83,7 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
   @override
   final GlobalKey<NavigatorState> navigatorKey;
 
-  NavigatorState get navigatorState => navigatorKey?.currentState;
+  NavigatorState? get navigatorState => navigatorKey.currentState;
 
   /// Retrieves the immediate [RouterDelegate] ancestor from the given context.
   static FFRouterDelegate of(BuildContext context) {
@@ -124,9 +125,10 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
       onPopPage: onPopPage ??
           (Route<dynamic> route, dynamic result) {
             if (_pages.length > 1 && route.settings is FFPage) {
-              final FFPage<dynamic> removed = _pages.lastWhere(
-                  (FFPage<dynamic> element) =>
-                      element.name == route.settings.name);
+              final FFPage<dynamic>? removed = _pages.lastWhereIndexedOrNull(
+                (int index, FFPage<dynamic> element) =>
+                    element.name == route.settings.name,
+              );
               if (removed != null) {
                 _pages.remove(removed);
                 updatePages();
@@ -136,12 +138,12 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
           },
       observers: <NavigatorObserver>[
         HeroController(),
-        if (observers != null) ...observers
+        if (observers != null) ...observers!
       ],
     );
 
     if (navigatorWrapper != null) {
-      return navigatorWrapper(navigator);
+      return navigatorWrapper!(navigator);
     } else {
       return navigator;
     }
@@ -154,10 +156,10 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
   /// synchronously, so that the [Router] does not need to wait for the next
   /// microtask to schedule a build.
   @override
-  Future<void> setNewRoutePath(RouteSettings configuration) {
+  Future<void> setNewRoutePath(RouteSettings? configuration) {
     _pages.add(getRoutePage(
-        name: configuration.name,
-        arguments: configuration.arguments as Map<String, dynamic>));
+        name: configuration!.name,
+        arguments: configuration.arguments as Map<String, dynamic>?));
     return SynchronousFuture<void>(null);
   }
 
@@ -183,20 +185,20 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
   /// only the top-most [Router] created by [WidgetsApp.router] should opt for
   /// route information reporting.
   @override
-  RouteSettings get currentConfiguration =>
+  RouteSettings? get currentConfiguration =>
       _pages.isNotEmpty ? _pages.last : null;
 
   ///
   FFPage<T> getRoutePage<T extends Object>({
-    @required String name,
-    Map<String, dynamic> arguments,
+    required String? name,
+    Map<String, dynamic>? arguments,
   }) {
     FFPage<T> ffPage =
         getRouteSettings(name: name, arguments: arguments).toFFPage<T>(
       key: getUniqueKey(),
     );
     if (pageWrapper != null) {
-      ffPage = pageWrapper(ffPage);
+      ffPage = pageWrapper!(ffPage);
     }
     return ffPage;
   }
@@ -207,27 +209,27 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
 
   /// Whether the navigator that most tightly encloses the given context can be
   /// popped.
-  bool canPop() => navigatorKey?.currentState?.canPop();
+  bool? canPop() => navigatorKey.currentState?.canPop();
 
   /// Pop the top-most route off the navigator that most tightly encloses the
   /// given context.
-  void pop<T extends Object>([T result]) {
-    navigatorState.pop(result);
+  void pop<T extends Object>([T? result]) {
+    navigatorState!.pop(result);
   }
 
   /// Consults the current route's [Route.willPop] method, and acts accordingly,
   /// potentially popping the route as a result; returns whether the pop request
   /// should be considered handled.
-  Future<bool> maybePop<T extends Object>([T result]) {
-    return navigatorState.maybePop(result);
+  Future<bool> maybePop<T extends Object>([T? result]) {
+    return navigatorState!.maybePop(result);
   }
 
   /// Pop the current route off the navigator and push a named route in its
   /// place.
   Future<T> popAndPushNamed<T extends Object>(
     String routeName, {
-    T result,
-    Map<String, dynamic> arguments,
+    T? result,
+    Map<String, dynamic>? arguments,
   }) {
     pop<T>(result);
     return pushNamed<T>(routeName, arguments: arguments);
@@ -260,7 +262,7 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
   /// context.
   Future<T> pushNamed<T extends Object>(
     String routeName, {
-    Map<String, dynamic> arguments,
+    Map<String, dynamic>? arguments,
   }) {
     final FFPage<T> page =
         getRoutePage<T>(name: routeName, arguments: arguments);
@@ -295,7 +297,7 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
   Future<T> pushNamedAndRemoveUntil<T extends Object>(
     String newRouteName,
     PagePredicate predicate, {
-    Map<String, dynamic> arguments,
+    Map<String, dynamic>? arguments,
   }) {
     _popUntil(predicate);
     return pushNamed<T>(newRouteName, arguments: arguments);
@@ -313,7 +315,7 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
 
   void _debugCheckDuplicatedPageKeys() {
     assert(() {
-      final Set<Key> keyReservation = <Key>{};
+      final Set<Key?> keyReservation = <Key?>{};
       for (final Page<dynamic> page in pages) {
         if (page.key != null) {
           assert(!keyReservation.contains(page.key));

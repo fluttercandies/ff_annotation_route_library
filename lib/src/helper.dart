@@ -9,15 +9,15 @@ class FFConvert {
   /// for example, you can type in web browser
   /// http://localhost:64916/#flutterCandies://testPageF?list=[4,5,6]&map={"ddd":123}&testMode={"id":2,"isTest":true}
   /// you should override following method, and convert queryParameters base on your case.
-  static T Function<T>(dynamic value) convert = <T>(dynamic value) {
+  static T? Function<T>(dynamic value) convert = <T>(dynamic value) {
     if (value == null) {
       return null;
     }
-    return json.decode(value.toString()) as T;
+    return json.decode(value.toString()) as T?;
   };
 }
 
-T asT<T>(dynamic value, [T defaultValue]) {
+T? asT<T>(dynamic value, [T? defaultValue]) {
   if (value is T) {
     return value;
   }

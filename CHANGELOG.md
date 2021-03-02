@@ -1,3 +1,6 @@
+## 1.2.2-nullsafety.1
+
+- Migrate to non-nullable
 ## 1.2.2
 
 - Fix FFRouteSettings's widget is null.
