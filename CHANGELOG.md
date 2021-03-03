@@ -1,3 +1,6 @@
+## 2.0.0
+
+- null-safety by default
 ## 1.2.4-nullsafety
 
 - Fix T?
