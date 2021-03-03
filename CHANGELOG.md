@@ -1,3 +1,6 @@
+## 2.0.1-non-null-safety
+
+- non-null-safety
 ## 1.2.2
 
 - Fix FFRouteSettings's widget is null.
