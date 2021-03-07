@@ -17,7 +17,7 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteSettings> {
   FFRouterDelegate({
     required this.getRouteSettings,
-    this.reportsRouteUpdateToEngine,
+    //this.reportsRouteUpdateToEngine,
     this.onPopPage,
     this.navigatorWrapper,
     this.observers,
@@ -45,7 +45,7 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
   /// bar.
   ///
   /// Defaults to null(true on Web).
-  final bool? reportsRouteUpdateToEngine;
+  // final bool? reportsRouteUpdateToEngine;
 
   /// Called when [pop] is invoked but the current [Route] corresponds to a
   /// [Page] found in the [pages] list.
@@ -121,7 +121,7 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
       pages: pages.toList(),
       key: navigatorKey,
       transitionDelegate: transitionDelegate,
-      reportsRouteUpdateToEngine: reportsRouteUpdateToEngine ?? kIsWeb,
+      reportsRouteUpdateToEngine: false,
       onPopPage: onPopPage ??
           (Route<dynamic> route, dynamic result) {
             if (_pages.length > 1 && route.settings is FFPage) {
