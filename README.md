@@ -17,7 +17,7 @@ dependencies:
 environment:
   sdk: '<2.12.0'
 dependencies:
-  ff_annotation_route: ^2.0.1-non-null-safety
+  ff_annotation_route: ^2.0.2-non-null-safety
 ``` 
 
 ### Navigator 2.0
