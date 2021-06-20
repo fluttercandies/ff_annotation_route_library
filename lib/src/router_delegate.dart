@@ -192,10 +192,14 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
     required String name,
     Map<String, dynamic>? arguments,
   }) {
-    FFPage<T?> ffPage =
-        getRouteSettings(name: name, arguments: arguments).toFFPage<T>(
+    final FFRouteSettings settings = getRouteSettings(name: name, arguments: arguments);
+
+    FFPage<T?> ffPage = settings.toFFPage<T>(
       key: getUniqueKey(),
+      /// If the current is 404, default SizedBox
+      widget: settings.widget ?? const SizedBox()
     );
+
     if (pageWrapper != null) {
       ffPage = pageWrapper!(ffPage);
     }
