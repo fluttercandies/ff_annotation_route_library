@@ -23,6 +23,7 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
     this.observers,
     this.pageWrapper,
     this.transitionDelegate = const DefaultTransitionDelegate<dynamic>(),
+    this.notFoundWidget,
   }) : navigatorKey = GlobalKey<NavigatorState>();
 
   /// The delegate used for deciding how routes transition in or off the screen
@@ -78,6 +79,9 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
 
   /// The current pages of navigator
   List<FFPage<dynamic>> get pages => _pages;
+
+  /// If the page is not found, it's the default page
+  final Widget? notFoundWidget;
 
   /// The key used for retrieving the current navigator
   @override
@@ -192,8 +196,11 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
     required String name,
     Map<String, dynamic>? arguments,
   }) {
-    FFPage<T?> ffPage =
-        getRouteSettings(name: name, arguments: arguments).toFFPage<T>(
+    FFPage<T?> ffPage = getRouteSettings(
+      name: name,
+      arguments: arguments,
+      notFoundWidget: notFoundWidget,
+    ).toFFPage<T>(
       key: getUniqueKey(),
     );
     if (pageWrapper != null) {
@@ -263,8 +270,10 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
     String routeName, {
     Map<String, dynamic>? arguments,
   }) {
-    final FFPage<T?> page =
-        getRoutePage<T>(name: routeName, arguments: arguments);
+    final FFPage<T?> page = getRoutePage<T>(
+      name: routeName,
+      arguments: arguments,
+    );
     pages.add(page);
     updatePages();
     return page.popped;

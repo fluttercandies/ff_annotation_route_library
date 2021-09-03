@@ -1,3 +1,7 @@
+## 2.0.3
+
+* add notFoundWidget for FFRouterDelegate
+
 ## 2.0.2
 
 * add notFoundWidget for GetRouteSettings
