@@ -1,3 +1,7 @@
+## 2.0.2
+
+* add notFoundWidget for GetRouteSettings
+
 ## 2.0.1
 
 * Fix issue that we should not set reportsRouteUpdateToEngine to true when use Router. Flutter #77143

@@ -128,4 +128,5 @@ typedef PageWrapper = FFPage<T> Function<T>(FFPage<T> pageRoute);
 typedef GetRouteSettings = FFRouteSettings Function({
   required String name,
   Map<String, dynamic>? arguments,
+  Widget? notFoundWidget,
 });
