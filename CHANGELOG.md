@@ -1,3 +1,7 @@
+## 2.0.4
+
+* Add `FFRouteSettings.notFound` factory constructor.
+
 ## 2.0.3
 
 * add notFoundWidget for FFRouterDelegate
