@@ -24,6 +24,14 @@ class FFRouteSettings extends RouteSettings {
           arguments: arguments,
         );
 
+  factory FFRouteSettings.notFound({Widget? notFoundWidget}) {
+    return FFRouteSettings(
+      name: FFRoute.notFoundName,
+      routeName: FFRoute.notFoundRouteName,
+      widget: notFoundWidget,
+    );
+  }
+
   /// The Widget base on this route
   final Widget? widget;
 
@@ -41,6 +49,10 @@ class FFRouteSettings extends RouteSettings {
 
   /// The extend arguments
   final Map<String, dynamic>? exts;
+
+  /// Whether the setting is targeting the not found route.
+  bool get isNotFound =>
+      name == FFRoute.notFoundName && routeName == FFRoute.notFoundRouteName;
 
   Route<dynamic> createRoute() {
     switch (pageRouteType) {
@@ -177,6 +189,7 @@ class FFPage<T> extends Page<T> {
   /// else the value of [null].
   Future<T> get popped => _popCompleter.future;
   final Completer<T> _popCompleter = Completer<T>();
+
   bool get isCompleted => _popCompleter.isCompleted;
 
   /// pop this route

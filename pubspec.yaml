@@ -8,7 +8,6 @@ environment:
 
 dependencies:
   collection: ^1.15.0  
-  ff_annotation_route_core: ^2.0.0
+  ff_annotation_route_core: ^2.0.3
   flutter:
     sdk: flutter
-
