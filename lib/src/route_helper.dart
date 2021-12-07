@@ -1,3 +1,4 @@
+import 'package:ff_annotation_route_core/ff_annotation_route_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -87,7 +88,7 @@ Widget _defaultTransitionsBuilder(
 Route<dynamic> onGenerateRoute({
   required RouteSettings settings,
   required GetRouteSettings getRouteSettings,
-  Widget? notFoundWidget,
+  PageBuilder? notFoundPageBuilder,
   Map<String, dynamic>? arguments,
   RouteSettingsWrapper? routeSettingsWrapper,
 }) {
@@ -101,18 +102,22 @@ Route<dynamic> onGenerateRoute({
   if (routeSettingsWrapper != null) {
     routeSettings = routeSettingsWrapper(routeSettings);
   }
-  final Widget? page = routeSettings.widget ?? notFoundWidget;
-  if (page == null) {
-    throw Exception(
-      '''Route "${settings.name}" returned null. Route Widget must never return null,
-          maybe the reason is that route name did not match with right path.
-          You can use parameter[notFoundFallback] to avoid this ugly error.''',
-    );
+  if (notFoundPageBuilder != null &&
+      routeSettings.name == FFRoute.notFoundName) {
+    routeSettings = routeSettings.copyWith(builder: notFoundPageBuilder);
   }
+  // final Widget? page = routeSettings.widget ?? notFoundWidget;
+  // if (page == null) {
+  //   throw Exception(
+  //     '''Route "${settings.name}" returned null. Route Widget must never return null,
+  //         maybe the reason is that route name did not match with right path.
+  //         You can use parameter[notFoundFallback] to avoid this ugly error.''',
+  //   );
+  // }
 
-  if (routeSettings.widget == null) {
-    routeSettings = routeSettings.copyWith(widget: page);
-  }
+  // if (routeSettings.widget == null) {
+  //   routeSettings = routeSettings.copyWith(widget: page);
+  // }
 
   return routeSettings.createRoute();
 }
@@ -128,5 +133,5 @@ typedef PageWrapper = FFPage<T> Function<T>(FFPage<T> pageRoute);
 typedef GetRouteSettings = FFRouteSettings Function({
   required String name,
   Map<String, dynamic>? arguments,
-  Widget? notFoundWidget,
+  PageBuilder? notFoundPageBuilder,
 });

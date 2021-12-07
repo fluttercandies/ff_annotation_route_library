@@ -1,6 +1,7 @@
+import 'package:collection/collection.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:collection/collection.dart';
 
 import 'page.dart';
 import 'route_helper.dart';
@@ -23,7 +24,7 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
     this.observers,
     this.pageWrapper,
     this.transitionDelegate = const DefaultTransitionDelegate<dynamic>(),
-    this.notFoundWidget,
+    this.notFoundPageBuilder,
   }) : navigatorKey = GlobalKey<NavigatorState>();
 
   /// The delegate used for deciding how routes transition in or off the screen
@@ -81,7 +82,7 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
   List<FFPage<dynamic>> get pages => _pages;
 
   /// If the page is not found, it's the default page
-  final Widget? notFoundWidget;
+  final PageBuilder? notFoundPageBuilder;
 
   /// The key used for retrieving the current navigator
   @override
@@ -199,7 +200,7 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
     FFPage<T?> ffPage = getRouteSettings(
       name: name,
       arguments: arguments,
-      notFoundWidget: notFoundWidget,
+      notFoundPageBuilder: notFoundPageBuilder,
     ).toFFPage<T>(
       key: getUniqueKey(),
     );

@@ -12,28 +12,36 @@ import 'route_helper.dart';
 class FFRouteSettings extends RouteSettings {
   const FFRouteSettings({
     required String name,
+    required this.builder,
     Object? arguments,
-    this.widget,
     this.showStatusBar,
     this.routeName,
     this.pageRouteType,
     this.description,
     this.exts,
+    this.codes,
   }) : super(
           name: name,
           arguments: arguments,
         );
 
-  factory FFRouteSettings.notFound({Widget? notFoundWidget}) {
+  factory FFRouteSettings.notFound(Widget notFoundWidget) {
     return FFRouteSettings(
       name: FFRoute.notFoundName,
       routeName: FFRoute.notFoundRouteName,
-      widget: notFoundWidget,
+      builder: () => notFoundWidget,
     );
   }
 
+  /// to support something can't write in annotation
+  /// it will be hadnled as a code when generate route
+  final Map<String, dynamic>? codes;
+
+  /// The builder return the page
+  final PageBuilder builder;
+
   /// The Widget base on this route
-  final Widget? widget;
+  //final Widget? widget;
 
   /// Whether show status bar.
   final bool? showStatusBar;
@@ -59,12 +67,12 @@ class FFRouteSettings extends RouteSettings {
       case PageRouteType.material:
         return MaterialPageRoute<dynamic>(
           settings: this,
-          builder: (BuildContext _) => widget!,
+          builder: (BuildContext _) => builder(),
         );
       case PageRouteType.cupertino:
         return CupertinoPageRoute<dynamic>(
           settings: this,
-          builder: (BuildContext _) => widget!,
+          builder: (BuildContext _) => builder(),
         );
       case PageRouteType.transparent:
         return FFTransparentPageRoute<dynamic>(
@@ -74,17 +82,17 @@ class FFRouteSettings extends RouteSettings {
             Animation<double> __,
             Animation<double> ___,
           ) =>
-              widget!,
+              builder(),
         );
       default:
         return kIsWeb || !Platform.isIOS
             ? MaterialPageRoute<dynamic>(
                 settings: this,
-                builder: (BuildContext _) => widget!,
+                builder: (BuildContext _) => builder(),
               )
             : CupertinoPageRoute<dynamic>(
                 settings: this,
-                builder: (BuildContext _) => widget!,
+                builder: (BuildContext _) => builder(),
               );
     }
   }
@@ -93,22 +101,24 @@ class FFRouteSettings extends RouteSettings {
   FFRouteSettings copyWith({
     String? name,
     Object? arguments,
-    Widget? widget,
+    PageBuilder? builder,
     bool? showStatusBar,
     String? routeName,
     PageRouteType? pageRouteType,
     String? description,
     Map<String, dynamic>? exts,
+    Map<String, dynamic>? codes,
   }) {
     return FFRouteSettings(
       name: name ?? this.name!,
       arguments: arguments ?? this.arguments,
-      widget: widget ?? this.widget,
+      builder: builder ?? this.builder,
       showStatusBar: showStatusBar ?? this.showStatusBar,
       routeName: routeName ?? this.routeName,
       pageRouteType: pageRouteType ?? this.pageRouteType,
       description: description ?? this.description,
       exts: exts ?? this.exts,
+      codes: codes ?? this.codes,
     );
   }
 
@@ -116,23 +126,25 @@ class FFRouteSettings extends RouteSettings {
     String? name,
     Object? arguments,
     required LocalKey key,
-    Widget? widget,
+    PageBuilder? builder,
     bool? showStatusBar,
     String? routeName,
     PageRouteType? pageRouteType,
     String? description,
     Map<String, dynamic>? exts,
+    Map<String, dynamic>? codes,
   }) {
     return FFPage<T>(
       name: name ?? this.name!,
       arguments: arguments ?? this.arguments,
       key: key,
-      widget: widget ?? this.widget!,
+      builder: builder ?? this.builder,
       showStatusBar: showStatusBar ?? this.showStatusBar,
       routeName: routeName ?? this.routeName,
       pageRouteType: pageRouteType ?? this.pageRouteType,
       description: description ?? this.description,
       exts: exts ?? this.exts,
+      codes: codes ?? this.codes,
     );
   }
 
@@ -144,6 +156,7 @@ class FFRouteSettings extends RouteSettings {
         'pageRouteType': pageRouteType,
         'description': description,
         'exts': exts,
+        'codes': codes,
       };
 }
 
@@ -152,21 +165,29 @@ class FFPage<T> extends Page<T> {
   FFPage({
     required String name,
     required LocalKey key,
-    required this.widget,
+    required this.builder,
     Object? arguments,
     this.showStatusBar,
     this.routeName,
     this.pageRouteType,
     this.description,
     this.exts,
+    this.codes,
   }) : super(
           key: key,
           name: name,
           arguments: arguments,
         );
 
+  /// to support something can't write in annotation
+  /// it will be hadnled as a code when generate route
+  final Map<String, dynamic>? codes;
+
+  /// The builder return the page
+  final PageBuilder builder;
+
   /// The Widget base on this route
-  final Widget widget;
+  //final Widget widget;
 
   /// Whether show status bar.
   final bool? showStatusBar;
@@ -216,12 +237,12 @@ class FFPage<T> extends Page<T> {
       case PageRouteType.material:
         return MaterialPageRoute<T>(
           settings: this,
-          builder: (BuildContext _) => widget,
+          builder: (BuildContext _) => builder(),
         );
       case PageRouteType.cupertino:
         return CupertinoPageRoute<T>(
           settings: this,
-          builder: (BuildContext _) => widget,
+          builder: (BuildContext _) => builder(),
         );
       case PageRouteType.transparent:
         return FFTransparentPageRoute<T>(
@@ -231,17 +252,17 @@ class FFPage<T> extends Page<T> {
             Animation<double> __,
             Animation<double> ___,
           ) =>
-              widget,
+              builder(),
         );
       default:
         return kIsWeb || !Platform.isIOS
             ? MaterialPageRoute<T>(
                 settings: this,
-                builder: (BuildContext _) => widget,
+                builder: (BuildContext _) => builder(),
               )
             : CupertinoPageRoute<T>(
                 settings: this,
-                builder: (BuildContext _) => widget,
+                builder: (BuildContext _) => builder(),
               );
     }
   }
@@ -251,23 +272,25 @@ class FFPage<T> extends Page<T> {
     String? name,
     Object? arguments,
     LocalKey? key,
-    Widget? widget,
+    PageBuilder? builder,
     bool? showStatusBar,
     String? routeName,
     PageRouteType? pageRouteType,
     String? description,
     Map<String, dynamic>? exts,
+    Map<String, dynamic>? codes,
   }) {
     return FFPage<T>(
       name: name ?? this.name!,
       arguments: arguments ?? this.arguments,
       key: key ?? this.key!,
-      widget: widget ?? this.widget,
+      builder: builder ?? this.builder,
       showStatusBar: showStatusBar ?? this.showStatusBar,
       routeName: routeName ?? this.routeName,
       pageRouteType: pageRouteType ?? this.pageRouteType,
       description: description ?? this.description,
       exts: exts ?? this.exts,
+      codes: codes ?? this.codes,
     );
   }
 
@@ -275,22 +298,24 @@ class FFPage<T> extends Page<T> {
     String? name,
     Object? arguments,
     LocalKey? key,
-    Widget? widget,
+    PageBuilder? builder,
     bool? showStatusBar,
     String? routeName,
     PageRouteType? pageRouteType,
     String? description,
     Map<String, dynamic>? exts,
+    Map<String, dynamic>? codes,
   }) {
     return FFRouteSettings(
       name: name ?? this.name!,
       arguments: arguments ?? this.arguments,
-      widget: widget ?? this.widget,
+      builder: builder ?? this.builder,
       showStatusBar: showStatusBar ?? this.showStatusBar,
       routeName: routeName ?? this.routeName,
       pageRouteType: pageRouteType ?? this.pageRouteType,
       description: description ?? this.description,
       exts: exts ?? this.exts,
+      codes: codes ?? this.codes,
     );
   }
 
@@ -303,5 +328,9 @@ class FFPage<T> extends Page<T> {
         'pageRouteType': pageRouteType,
         'description': description,
         'exts': exts,
+        'codes': codes,
       };
 }
+
+/// The builder return the page
+typedef PageBuilder = Widget Function();

@@ -1,3 +1,9 @@
+## 3.0.0
+
+* Breaking change: use `FFRouteSettings.builder` instead of `FFRouteSettings.widget`
+* Breaking change: use `FFPage.builder` instead of `FFPage.widget`
+* Breaking change: use `notFoundPageBuilder` instead of `notFoundWidget` 
+
 ## 2.0.4
 
 * Add `FFRouteSettings.notFound` factory constructor.
