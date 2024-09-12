@@ -5,7 +5,6 @@ import 'package:ff_annotation_route_core/ff_annotation_route_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'route_helper.dart';
 
 /// Navigator 1.0

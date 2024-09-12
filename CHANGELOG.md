@@ -1,3 +1,9 @@
+## 3.1.0
+
+* Support route interceptor
+* Add `RouteLifecycleState` provides lifecycle management for routes
+* Add `GlobalNavigator` manages global navigation actions
+
 ## 3.0.0
 
 * Breaking change: use `FFRouteSettings.builder` instead of `FFRouteSettings.widget`

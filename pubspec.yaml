@@ -1,6 +1,6 @@
 name: ff_annotation_route_library
 description: The library for ff_annotation_route,support both null-safety and non-null-safety.
-version: 3.0.0
+version: 3.1.0
 homepage: https://github.com/fluttercandies/ff_annotation_route_library
 
 environment:
@@ -8,6 +8,9 @@ environment:
 
 dependencies:
   collection: ^1.15.0  
-  ff_annotation_route_core: ^2.0.4
+  ff_annotation_route_core: ^2.1.0
   flutter:
     sdk: flutter
+# dependency_overrides:
+#   ff_annotation_route_core:
+#     path: ../ff_annotation_route_core
