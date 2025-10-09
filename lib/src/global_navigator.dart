@@ -22,7 +22,9 @@ class GlobalNavigator {
   // Asserts ensure that the context is initialized before trying to use it.
   static BuildContext? get context {
     assert(
-        navigatorKey.currentContext != null, 'Navigator is not initialized.');
+      navigatorKey.currentContext != null,
+      'Navigator is not initialized.',
+    );
     return navigatorKey.currentContext;
   }
 }

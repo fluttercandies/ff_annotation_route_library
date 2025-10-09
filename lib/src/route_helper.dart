@@ -1,5 +1,4 @@
 import 'package:ff_annotation_route_core/ff_annotation_route_core.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'page.dart';
@@ -43,7 +42,9 @@ class FFNavigatorObserver extends NavigatorObserver {
 /// Route change call back
 /// [FFNavigatorObserver.routeChange]
 typedef RouteChange = void Function(
-    Route<dynamic>? newRoute, Route<dynamic>? oldRoute);
+  Route<dynamic>? newRoute,
+  Route<dynamic>? oldRoute,
+);
 
 /// Transparent Page Route
 class FFTransparentPageRoute<T> extends PageRouteBuilder<T> {
@@ -124,7 +125,8 @@ Route<dynamic> onGenerateRoute({
 
 /// [onGenerateRoute], re-define FFRouteSettings in this call back
 typedef RouteSettingsWrapper = FFRouteSettings Function(
-    FFRouteSettings pageRoute);
+  FFRouteSettings pageRoute,
+);
 
 /// [FFRouterDelegate.pageWrapper], re-define FFPage in this call back
 typedef PageWrapper = FFPage<T> Function<T>(FFPage<T> pageRoute);

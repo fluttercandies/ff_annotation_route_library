@@ -185,8 +185,10 @@ extension NavigatorWithInterceptorExtension on NavigatorState {
       return '';
     }
 
-    return restorablePushNamed<T>(result.routeName,
-        arguments: result.arguments);
+    return restorablePushNamed<T>(
+      result.routeName,
+      arguments: result.arguments,
+    );
   }
 
   /// Replace the current route of the navigator that most tightly encloses the

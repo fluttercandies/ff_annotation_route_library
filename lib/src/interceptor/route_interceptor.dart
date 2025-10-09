@@ -3,7 +3,9 @@ import 'package:ff_annotation_route_core/ff_annotation_route_core.dart';
 /// Manages route interceptors globally and per route basis.
 class RouteInterceptorManager {
   factory RouteInterceptorManager() => _routeInterceptors;
+
   RouteInterceptorManager._();
+
   static final RouteInterceptorManager _routeInterceptors =
       RouteInterceptorManager._();
 
@@ -26,13 +28,16 @@ class RouteInterceptorManager {
 
   /// Adds interceptors for a specific route by its name.
   void addRouteInterceptors(
-      String routeName, List<RouteInterceptor> interceptors) {
+    String routeName,
+    List<RouteInterceptor> interceptors,
+  ) {
     _interceptorMap[routeName] = interceptors;
   }
 
   /// Merges another map of route-specific interceptors.
   void addAllRouteInterceptors(
-      Map<String, List<RouteInterceptor>> interceptorsMap) {
+    Map<String, List<RouteInterceptor>> interceptorsMap,
+  ) {
     _interceptorMap.addAll(interceptorsMap);
   }
 

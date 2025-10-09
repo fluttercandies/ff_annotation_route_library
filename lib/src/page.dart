@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:ff_annotation_route_core/ff_annotation_route_core.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'route_helper.dart';
@@ -96,7 +96,6 @@ class FFRouteSettings extends RouteSettings {
     }
   }
 
-  @override
   FFRouteSettings copyWith({
     String? name,
     Object? arguments,
@@ -266,7 +265,6 @@ class FFPage<T> extends Page<T> {
     }
   }
 
-  @override
   FFPage<T> copyWith({
     String? name,
     Object? arguments,

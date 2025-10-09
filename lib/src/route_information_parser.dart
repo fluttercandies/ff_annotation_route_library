@@ -16,17 +16,21 @@ class FFRouteInformationParser extends RouteInformationParser<RouteSettings> {
   /// microtask to pass the data to the [RouterDelegate].
   @override
   Future<RouteSettings> parseRouteInformation(
-      RouteInformation routeInformation) {
+    RouteInformation routeInformation,
+  ) {
+    // ignore: deprecated_member_use, unnecessary_non_null_assertion
     String name = routeInformation.location!;
     final Uri? uri = Uri.tryParse(name);
     if (uri != null && uri.queryParameters.isNotEmpty) {
       name = name.substring(0, name.indexOf('?'));
     }
 
-    return SynchronousFuture<RouteSettings>(RouteSettings(
-      name: name,
-      arguments: uri?.queryParameters,
-    ));
+    return SynchronousFuture<RouteSettings>(
+      RouteSettings(
+        name: name,
+        arguments: uri?.queryParameters,
+      ),
+    );
   }
 
   /// Restore the route information from the given configuration.
@@ -58,6 +62,7 @@ class FFRouteInformationParser extends RouteInformationParser<RouteSettings> {
       }
     }
     return RouteInformation(
+      // ignore: deprecated_member_use
       location: location,
     );
   }

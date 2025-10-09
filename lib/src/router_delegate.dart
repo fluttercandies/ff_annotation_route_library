@@ -127,6 +127,7 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
       key: navigatorKey,
       transitionDelegate: transitionDelegate,
       reportsRouteUpdateToEngine: false,
+      // ignore: deprecated_member_use
       onPopPage: onPopPage ??
           (Route<dynamic> route, dynamic result) {
             if (_pages.length > 1 && route.settings is FFPage) {
@@ -143,7 +144,7 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
           },
       observers: <NavigatorObserver>[
         HeroController(),
-        if (observers != null) ...observers!
+        if (observers != null) ...observers!,
       ],
     );
 
@@ -162,9 +163,12 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
   /// microtask to schedule a build.
   @override
   Future<void> setNewRoutePath(RouteSettings configuration) {
-    _pages.add(getRoutePage(
+    _pages.add(
+      getRoutePage(
         name: configuration.name!,
-        arguments: configuration.arguments as Map<String, dynamic>?));
+        arguments: configuration.arguments as Map<String, dynamic>?,
+      ),
+    );
     return SynchronousFuture<void>(null);
   }
 
@@ -224,6 +228,7 @@ class FFRouterDelegate extends RouterDelegate<RouteSettings>
     navigatorState!.pop<T>(result);
   }
 
+  // ignore: deprecated_member_use
   /// Consults the current route's [Route.willPop] method, and acts accordingly,
   /// potentially popping the route as a result; returns whether the pop request
   /// should be considered handled.
