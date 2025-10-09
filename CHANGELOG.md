@@ -1,3 +1,8 @@
+## 3.2.0
+
+* Introduce `FFErrorWidgetBuilder` to build an error page correspondingly.
+* Extract `FFRouteSettings.createRouteFromBuilder`.
+
 ## 3.1.0
 
 * Support route interceptor

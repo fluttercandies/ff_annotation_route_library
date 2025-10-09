@@ -61,39 +61,66 @@ class FFRouteSettings extends RouteSettings {
   bool get isNotFound =>
       name == FFRoute.notFoundName && routeName == FFRoute.notFoundRouteName;
 
-  Route<dynamic> createRoute() {
+  static Route<dynamic> createRouteFromBuilder({
+    required PageBuilder pageBuilder,
+    PageRouteType? pageRouteType,
+    RouteSettings? settings,
+    FFErrorWidgetBuilder? errorWidgetBuilder,
+  }) {
+    Widget builder(BuildContext context) {
+      try {
+        return pageBuilder();
+      } catch (e, s) {
+        if (errorWidgetBuilder != null) {
+          return errorWidgetBuilder(context, e, s);
+        }
+        rethrow;
+      }
+    }
+
     switch (pageRouteType) {
       case PageRouteType.material:
-        return MaterialPageRoute<dynamic>(
-          settings: this,
-          builder: (BuildContext _) => builder(),
+        return MaterialPageRoute(
+          settings: settings,
+          builder: builder,
         );
       case PageRouteType.cupertino:
-        return CupertinoPageRoute<dynamic>(
-          settings: this,
-          builder: (BuildContext _) => builder(),
+        return CupertinoPageRoute(
+          settings: settings,
+          builder: builder,
         );
       case PageRouteType.transparent:
-        return FFTransparentPageRoute<dynamic>(
-          settings: this,
-          pageBuilder: (
-            BuildContext _,
-            Animation<double> __,
-            Animation<double> ___,
-          ) =>
-              builder(),
+        return FFTransparentPageRoute(
+          settings: settings,
+          pageBuilder: (context, _, __) => builder(context),
         );
-      default:
-        return kIsWeb || !Platform.isIOS
-            ? MaterialPageRoute<dynamic>(
-                settings: this,
-                builder: (BuildContext _) => builder(),
-              )
-            : CupertinoPageRoute<dynamic>(
-                settings: this,
-                builder: (BuildContext _) => builder(),
-              );
+      case null:
+        if (kIsWeb) {
+          return MaterialPageRoute(
+            settings: settings,
+            builder: builder,
+          );
+        }
+        if (Platform.isIOS || Platform.isMacOS) {
+          return CupertinoPageRoute(
+            settings: settings,
+            builder: builder,
+          );
+        }
+        return MaterialPageRoute(
+          settings: settings,
+          builder: builder,
+        );
     }
+  }
+
+  Route<dynamic> createRoute({FFErrorWidgetBuilder? errorWidgetBuilder}) {
+    return createRouteFromBuilder(
+      pageBuilder: builder,
+      pageRouteType: pageRouteType,
+      settings: this,
+      errorWidgetBuilder: errorWidgetBuilder,
+    );
   }
 
   FFRouteSettings copyWith({
@@ -146,16 +173,18 @@ class FFRouteSettings extends RouteSettings {
     );
   }
 
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'name': name,
-        'arguments': arguments,
-        'showStatusBar': showStatusBar,
-        'routeName': routeName,
-        'pageRouteType': pageRouteType,
-        'description': description,
-        'exts': exts,
-        'codes': codes,
-      };
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'name': name,
+      'arguments': arguments,
+      'showStatusBar': showStatusBar,
+      'routeName': routeName,
+      'pageRouteType': pageRouteType,
+      'description': description,
+      'exts': exts,
+      'codes': codes,
+    };
+  }
 }
 
 /// Navigator 2.0
@@ -331,3 +360,10 @@ class FFPage<T> extends Page<T> {
 
 /// The builder return the page
 typedef PageBuilder = Widget Function();
+
+/// The builder return the error page
+typedef FFErrorWidgetBuilder = Widget Function(
+  BuildContext context,
+  Object error,
+  StackTrace stackTrace,
+);

@@ -89,38 +89,43 @@ Widget _defaultTransitionsBuilder(
 Route<dynamic> onGenerateRoute({
   required RouteSettings settings,
   required GetRouteSettings getRouteSettings,
-  PageBuilder? notFoundPageBuilder,
   Map<String, dynamic>? arguments,
   RouteSettingsWrapper? routeSettingsWrapper,
+  PageBuilder? notFoundPageBuilder,
+  FFErrorWidgetBuilder? errorWidgetBuilder,
 }) {
-  arguments ??= settings.arguments as Map<String, dynamic>?;
+  FFRouteSettings? routeSettings;
 
-  FFRouteSettings routeSettings = getRouteSettings(
-    name: settings.name!,
-    arguments: arguments,
-  );
+  try {
+    arguments ??= settings.arguments as Map<String, dynamic>?;
 
-  if (routeSettingsWrapper != null) {
-    routeSettings = routeSettingsWrapper(routeSettings);
+    routeSettings = getRouteSettings(
+      name: settings.name!,
+      arguments: arguments,
+    );
+
+    if (routeSettingsWrapper != null) {
+      routeSettings = routeSettingsWrapper(routeSettings);
+    }
+    if (notFoundPageBuilder != null &&
+        routeSettings.name == FFRoute.notFoundName) {
+      routeSettings = routeSettings.copyWith(builder: notFoundPageBuilder);
+    }
+
+    return routeSettings.createRoute(errorWidgetBuilder: errorWidgetBuilder);
+  } catch (e, s) {
+    if (errorWidgetBuilder != null) {
+      return FFRouteSettings.createRouteFromBuilder(
+        pageBuilder: () => Builder(
+          builder: (context) => errorWidgetBuilder(context, e, s),
+        ),
+        pageRouteType: routeSettings?.pageRouteType,
+        settings: settings,
+        errorWidgetBuilder: errorWidgetBuilder,
+      );
+    }
+    rethrow;
   }
-  if (notFoundPageBuilder != null &&
-      routeSettings.name == FFRoute.notFoundName) {
-    routeSettings = routeSettings.copyWith(builder: notFoundPageBuilder);
-  }
-  // final Widget? page = routeSettings.widget ?? notFoundWidget;
-  // if (page == null) {
-  //   throw Exception(
-  //     '''Route "${settings.name}" returned null. Route Widget must never return null,
-  //         maybe the reason is that route name did not match with right path.
-  //         You can use parameter[notFoundFallback] to avoid this ugly error.''',
-  //   );
-  // }
-
-  // if (routeSettings.widget == null) {
-  //   routeSettings = routeSettings.copyWith(widget: page);
-  // }
-
-  return routeSettings.createRoute();
 }
 
 /// [onGenerateRoute], re-define FFRouteSettings in this call back
