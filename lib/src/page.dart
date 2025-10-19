@@ -367,3 +367,64 @@ typedef FFErrorWidgetBuilder = Widget Function(
   Object error,
   StackTrace stackTrace,
 );
+
+/// GoRouter
+///
+class FFGoRouterRouteSettings extends RouteSettings {
+  const FFGoRouterRouteSettings({
+    required String name,
+    required this.builder,
+    Object? arguments,
+    this.showStatusBar,
+    this.routeName,
+    this.pageRouteType,
+    this.description,
+    this.exts,
+    this.codes,
+  }) : super(
+          name: name,
+          arguments: arguments,
+        );
+
+  factory FFGoRouterRouteSettings.notFound(Widget notFoundWidget) {
+    return FFGoRouterRouteSettings(
+      name: FFRoute.notFoundName,
+      routeName: FFRoute.notFoundRouteName,
+      builder: (_) => notFoundWidget,
+    );
+  }
+
+  /// to support something can't write in annotation
+  /// it will be hadnled as a code when generate route
+  final Map<String, dynamic>? codes;
+
+  /// The builder return the page
+  final GoRouterPageBuilder builder;
+
+  /// The Widget base on this route
+  //final Widget? widget;
+
+  /// Whether show status bar.
+  final bool? showStatusBar;
+
+  /// The route name to track page
+  final String? routeName;
+
+  /// The type of page route
+  final PageRouteType? pageRouteType;
+
+  /// The description of route
+  final String? description;
+
+  /// The extend arguments
+  final Map<String, dynamic>? exts;
+
+  /// Whether the setting is targeting the not found route.
+  bool get isNotFound =>
+      name == FFRoute.notFoundName && routeName == FFRoute.notFoundRouteName;
+}
+
+/// The builder return the page
+typedef GoRouterPageBuilder = Widget Function(
+  Map<String, dynamic> safeArguments,
+);

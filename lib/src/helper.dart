@@ -28,7 +28,7 @@ T? asT<T extends Object?>(dynamic value, [T? defaultValue]) {
       if ('' is T) {
         return valueS as T;
       } else if (0 is T) {
-        return int.parse(valueS) as T;
+        return (int.tryParse(valueS) ?? double.tryParse(valueS)?.toInt()) as T;
       } else if (0.0 is T) {
         return double.parse(valueS) as T;
       } else if (false is T) {

@@ -1,3 +1,7 @@
+## 3.2.1
+
+* Add `FFGoRouterRouteSettings` and `GoRouterPageBuilder` to support `go_router`.
+
 ## 3.2.0
 
 * Introduce `FFErrorWidgetBuilder` to build an error page correspondingly.
