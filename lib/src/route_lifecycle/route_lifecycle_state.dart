@@ -4,11 +4,21 @@ import 'extended_route_aware.dart';
 import 'extended_route_observer.dart';
 
 @optionalTypeArgs
-// RouteLifecycleState is an abstract class that provides lifecycle management for routes.
-// It extends State and uses the ExtendedRouteAware mixin to monitor route changes.
-// It also observes the app's lifecycle events through WidgetsBindingObserver.
-abstract class RouteLifecycleState<T extends StatefulWidget> extends State<T>
-    with ExtendedRouteAware, WidgetsBindingObserver {
+// RouteLifecycleMixin is a mixin that provides lifecycle management for routes.
+// It uses the ExtendedRouteAware mixin to monitor route changes and also observes
+// the app's lifecycle events through WidgetsBindingObserver.
+//
+// Usage example:
+// ```dart
+// class MyPageState extends State<MyPage> with RouteLifecycleMixin {
+//   @override
+//   void onPageShow() {
+//     // Called when the page is shown
+//   }
+// }
+// ```
+mixin RouteLifecycleMixin<T extends StatefulWidget> on State<T>
+    implements ExtendedRouteAware, WidgetsBindingObserver {
   // Stores the current modal route (could be any route type)
   ModalRoute<dynamic>? _modalRoute;
 
@@ -43,6 +53,8 @@ abstract class RouteLifecycleState<T extends StatefulWidget> extends State<T>
     // If the current route is a PageRoute, cast it to PageRoute
     if (_modalRoute is PageRoute) {
       _pageRoute = _modalRoute as PageRoute<dynamic>;
+    } else {
+      _pageRoute = null;
     }
 
     // Subscribe this state to the route observer to track route changes
@@ -64,8 +76,6 @@ abstract class RouteLifecycleState<T extends StatefulWidget> extends State<T>
   // Called when the app's lifecycle state changes (e.g., app is resumed or paused)
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-
     // Check if this route is the current one before handling lifecycle events
     if (_modalRoute?.isCurrent == true) {
       // If the app comes to the foreground, call onForeground()
@@ -78,4 +88,36 @@ abstract class RouteLifecycleState<T extends StatefulWidget> extends State<T>
       }
     }
   }
+
+  // ExtendedRouteAware interface implementation
+  @override
+  void onPageShow() {}
+
+  @override
+  void onPageHide() {}
+
+  @override
+  void onForeground() {}
+
+  @override
+  void onBackground() {}
 }
+
+@optionalTypeArgs
+@Deprecated(
+  'Use RouteLifecycleMixin instead. This will be removed in a future version.',
+)
+// RouteLifecycleState is deprecated. Use RouteLifecycleMixin instead for better flexibility.
+//
+// Migration example:
+// Before:
+// ```dart
+// class MyPageState extends RouteLifecycleState<MyPage> { }
+// ```
+//
+// After:
+// ```dart
+// class MyPageState extends State<MyPage> with RouteLifecycleMixin { }
+// ```
+abstract class RouteLifecycleState<T extends StatefulWidget> extends State<T>
+    with RouteLifecycleMixin<T> {}

@@ -1,13 +1,13 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 
-/// [ExtendedRouteObserver] is a utility class that extends the functionality of
+/// [BaseRouteObserver] is a base class that extends the functionality of
 /// Flutter's built-in RouteObserver. It allows for more advanced route
 /// management and tracking in the navigation stack. This class maintains
 /// an internal list of active routes and provides several utility methods
 /// for route inspection and manipulation.
 ///
-/// Key features of [ExtendedRouteObserver]:
+/// Key features of [BaseRouteObserver]:
 /// - Tracks all active routes in the navigation stack.
 /// - Provides access to the top-most route via the `topRoute` getter.
 /// - Allows checking if a specific route exists in the stack with `containsRoute()`.
@@ -21,19 +21,19 @@ import 'package:flutter/widgets.dart';
 /// - Handling custom navigation logic based on the current route stack.
 /// - Implementing a navigation history feature or a breadcrumb-style navigator.
 ///
-/// By leveraging this class, developers can gain better insight into and
-/// control over their app's navigation state.
-class ExtendedRouteObserver extends RouteObserver<Route<dynamic>> {
-  // Singleton factory constructor for the ExtendedRouteObserver
-  factory ExtendedRouteObserver() => _extendedRouteObserver;
-
-  // Private named constructor
-  ExtendedRouteObserver._();
-
-  // Static instance for the singleton
-  static final ExtendedRouteObserver _extendedRouteObserver =
-      ExtendedRouteObserver._();
-
+/// You can extend this class to create your own custom route observers with
+/// additional functionality.
+///
+/// Example:
+/// ```dart
+/// class MyCustomRouteObserver extends BaseRouteObserver {
+///   @override
+///   void onRouteAdd(Route<dynamic>? route) {
+///     // Custom logic when a route is added
+///   }
+/// }
+/// ```
+class BaseRouteObserver extends RouteObserver<Route<dynamic>> {
   // A list to store the routes currently in the navigation stack
   final List<Route<dynamic>> _routes = <Route<dynamic>>[];
 
@@ -118,4 +118,24 @@ class ExtendedRouteObserver extends RouteObserver<Route<dynamic>> {
       (Route<dynamic> route) => route.settings.name == routeName,
     );
   }
+}
+
+/// [ExtendedRouteObserver] is a singleton implementation of [BaseRouteObserver].
+/// It provides a globally accessible instance for route observation.
+///
+/// This class is useful when you need a single, shared route observer across
+/// your entire application.
+///
+/// If you need custom route observer behavior, extend [BaseRouteObserver] instead
+/// of trying to extend this singleton class.
+class ExtendedRouteObserver extends BaseRouteObserver {
+  // Singleton factory constructor for the ExtendedRouteObserver
+  factory ExtendedRouteObserver() => _extendedRouteObserver;
+
+  // Private named constructor
+  ExtendedRouteObserver._();
+
+  // Static instance for the singleton
+  static final ExtendedRouteObserver _extendedRouteObserver =
+      ExtendedRouteObserver._();
 }

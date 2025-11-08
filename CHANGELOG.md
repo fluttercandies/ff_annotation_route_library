@@ -1,3 +1,9 @@
+## 3.2.2
+
+* Add `BaseRouteObserver` as a base class that can be extended for custom route observers
+* Refactor `RouteLifecycleState` to `RouteLifecycleMixin` for better flexibility and composability
+* Deprecate `RouteLifecycleState` in favor of `RouteLifecycleMixin`
+
 ## 3.2.1
 
 * Add `FFGoRouterRouteSettings` and `GoRouterPageBuilder` to support `go_router`.
