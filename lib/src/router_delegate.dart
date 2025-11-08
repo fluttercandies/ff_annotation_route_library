@@ -14,6 +14,18 @@ typedef PagePredicate = bool Function(FFPage<dynamic> page);
 
 /// A delegate that is used by the [Router] widget to build and configure a
 /// navigating widget.
+/// FFRouterDelegate
+///
+/// Custom `RouterDelegate` implementation managing a stack of `FFPage` items
+/// produced by annotation‑generated route settings. Supports page wrapping,
+/// notFound handling, transition customization and observer injection.
+///
+/// Primary responsibilities:
+///  * Maintain an internal mutable list `_pages` representing the page stack.
+///  * Expose helper methods (`pushNamed`, `popUntil`, etc.) that mutate this
+///    list and trigger rebuilds.
+///  * Provide `currentConfiguration` for integration with the route
+///    information provider.
 class FFRouterDelegate extends RouterDelegate<RouteSettings>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteSettings> {
   FFRouterDelegate({

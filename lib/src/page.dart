@@ -7,6 +7,21 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'route_helper.dart';
 
+/// FFRouteSettings / FFPage
+///
+/// This file contains data structures and helpers bridging generated route
+/// metadata (`ff_annotation_route_core`) with concrete `Route` / `Page`
+/// instances for both Navigator 1.0 and Router 2.0 use cases.
+///
+/// Key concepts:
+///  * `FFRouteSettings` – extends `RouteSettings` with page builder, status bar
+///    flags, descriptive metadata and extension slots.
+///  * `FFPage` – a `Page` subclass wrapping builder logic for declarative
+///    navigation.
+///  * Factory helpers for notFound and error routes.
+///
+/// Generated code will typically call into these APIs to construct runtime
+/// navigation artifacts.
 /// Navigator 1.0
 class FFRouteSettings extends RouteSettings {
   const FFRouteSettings({

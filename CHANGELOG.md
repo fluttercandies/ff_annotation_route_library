@@ -1,8 +1,13 @@
+## 3.2.3
+
+* Add `RouteObserverHolder` to allow swapping the global `BaseRouteObserver` (inject a custom observer in `main()`)
+* Provide `ExtendedRouteObserver` (singleton) as the default global observer; document how to replace it
+* Introduce and document `RouteLifecycleMixin<T extends StatefulWidget>` for easy lifecycle hooks on State classes
+
 ## 3.2.2
 
 * Add `BaseRouteObserver` as a base class that can be extended for custom route observers
 * Refactor `RouteLifecycleState` to `RouteLifecycleMixin` for better flexibility and composability
-* Deprecate `RouteLifecycleState` in favor of `RouteLifecycleMixin`
 
 ## 3.2.1
 

@@ -33,6 +33,16 @@ import 'package:flutter/widgets.dart';
 ///   }
 /// }
 /// ```
+/// BaseRouteObserver
+///
+/// Extends `RouteObserver` with:
+///  * An indexed list of active routes
+///  * Convenience queries (topRoute, containsRoute, getRouteByName)
+///  * Notifiers (`onRouteAdded`, `onRouteRemoved`) for external listeners
+///  * Overridable hooks (`onRouteAdd`, `onRouteRemove`) for subclass behavior
+///
+/// Subclass this (or replace the global instance via `RouteObserverHolder`) to
+/// integrate analytics, logging, or custom lifecycle reactions.
 class BaseRouteObserver extends RouteObserver<Route<dynamic>> {
   // A list to store the routes currently in the navigation stack
   final List<Route<dynamic>> _routes = <Route<dynamic>>[];
@@ -128,6 +138,13 @@ class BaseRouteObserver extends RouteObserver<Route<dynamic>> {
 ///
 /// If you need custom route observer behavior, extend [BaseRouteObserver] instead
 /// of trying to extend this singleton class.
+/// ExtendedRouteObserver
+///
+/// Singleton implementation of [BaseRouteObserver] used by default throughout
+/// the library. Replace globally using:
+/// ```dart
+/// RouteObserverHolder.observer = MyCustomRouteObserver();
+/// ```
 class ExtendedRouteObserver extends BaseRouteObserver {
   // Singleton factory constructor for the ExtendedRouteObserver
   factory ExtendedRouteObserver() => _extendedRouteObserver;
@@ -138,4 +155,22 @@ class ExtendedRouteObserver extends BaseRouteObserver {
   // Static instance for the singleton
   static final ExtendedRouteObserver _extendedRouteObserver =
       ExtendedRouteObserver._();
+}
+
+/// Global holder for the route observer instance used by helpers/mixins.
+///
+/// By default it uses the singleton [ExtendedRouteObserver]. If users create
+/// their own observer by extending [BaseRouteObserver], they can replace it:
+///
+/// RouteObserverHolder.observer = MyCustomRouteObserver();
+/// Holds the active `BaseRouteObserver` used by lifecycle mixins and helpers.
+/// Swap early (e.g. in `main`) to customize global route observation:
+/// ```dart
+/// void main() {
+///   RouteObserverHolder.observer = MyCustomRouteObserver();
+///   runApp(const MyApp());
+/// }
+/// ```
+class RouteObserverHolder {
+  static BaseRouteObserver observer = ExtendedRouteObserver();
 }

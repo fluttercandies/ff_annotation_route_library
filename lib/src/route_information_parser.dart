@@ -3,6 +3,11 @@ import 'package:flutter/widgets.dart';
 
 /// A delegate that is used by the [Router] widget to parse a route information
 /// into a configuration of type [RouteSettings].
+/// FFRouteInformationParser
+///
+/// Minimal implementation translating `RouteInformation.location` into a
+/// `RouteSettings` with optional query parameter extraction. Used in tandem
+/// with `FFRouterDelegate` for Router 2.0 integration.
 class FFRouteInformationParser extends RouteInformationParser<RouteSettings> {
   /// Converts the given route information into parsed data to pass to a
   /// [FFRouterDelegate].

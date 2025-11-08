@@ -3,121 +3,145 @@ import 'package:flutter/widgets.dart';
 import 'extended_route_aware.dart';
 import 'extended_route_observer.dart';
 
-@optionalTypeArgs
-// RouteLifecycleMixin is a mixin that provides lifecycle management for routes.
-// It uses the ExtendedRouteAware mixin to monitor route changes and also observes
-// the app's lifecycle events through WidgetsBindingObserver.
-//
-// Usage example:
-// ```dart
-// class MyPageState extends State<MyPage> with RouteLifecycleMixin {
-//   @override
-//   void onPageShow() {
-//     // Called when the page is shown
-//   }
-// }
-// ```
-mixin RouteLifecycleMixin<T extends StatefulWidget> on State<T>
-    implements ExtendedRouteAware, WidgetsBindingObserver {
-  // Stores the current modal route (could be any route type)
+/// RouteLifecycleMixin
+///
+/// Lightweight mixin you can apply to any `State<T>` to receive hooks for:
+///  * Page visibility (page vs. non-page route differentiation)
+///  * Route visibility (push / pop / obscured by another route)
+///  * App foreground / background transitions (only when the route is current)
+///
+/// It internally subscribes to a globally configurable `BaseRouteObserver`
+/// instance exposed via `RouteObserverHolder.observer`. Applications may swap
+/// this observer before `runApp()` to implement custom route tracking.
+///
+/// Example:
+/// ```dart
+/// class _DetailState extends State<DetailPage> with RouteLifecycleMixin<DetailPage> {
+///   @override
+///   void onPageShow() => debugPrint('DetailPage visible');
+///   @override
+///   void onForeground() => debugPrint('DetailPage resumed with app');
+/// }
+/// ```
+///
+/// Override only the callbacks you care about; empty defaults avoid boilerplate.
+mixin RouteLifecycleMixin<T extends StatefulWidget> on State<T> {
   ModalRoute<dynamic>? _modalRoute;
-
-  // Getter to access the current modal route
-  ModalRoute<dynamic>? get modalRoute => _modalRoute;
-
-  // Stores the current page route (specific to PageRoute type)
   PageRoute<dynamic>? _pageRoute;
-
-  // Getter to access the current page route
+  bool get isPage => _pageRoute != null;
+  ModalRoute<dynamic>? get modalRoute => _modalRoute;
   PageRoute<dynamic>? get pageRoute => _pageRoute;
 
-  // Checks if the current route is a page route
-  @override
-  bool get isPage => _pageRoute != null;
+  late final _RouteLifecycleHelper _lifecycleHelper =
+      _RouteLifecycleHelper(this);
 
-  // Called when the state is initialized
   @override
   void initState() {
     super.initState();
-    // Registers the WidgetsBindingObserver to listen for app lifecycle changes
-    WidgetsBinding.instance.addObserver(this);
+    _lifecycleHelper.init();
   }
 
-  // Called when dependencies change, such as when the widget tree is rebuilt
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Get the current modal route from the context
     _modalRoute = ModalRoute.of(context);
-
-    // If the current route is a PageRoute, cast it to PageRoute
     if (_modalRoute is PageRoute) {
       _pageRoute = _modalRoute as PageRoute<dynamic>;
     } else {
       _pageRoute = null;
     }
-
-    // Subscribe this state to the route observer to track route changes
-    ExtendedRouteObserver().subscribe(this, _modalRoute!);
+    _lifecycleHelper.subscribe(_modalRoute);
   }
 
-  // Called when the widget is disposed of
   @override
   void dispose() {
-    // Remove the WidgetsBindingObserver when the state is destroyed
-    WidgetsBinding.instance.removeObserver(this);
-
-    // Unsubscribe from the route observer to stop tracking route changes
-    ExtendedRouteObserver().unsubscribe(this);
-
+    _lifecycleHelper.dispose();
     super.dispose();
   }
 
-  // Called when the app's lifecycle state changes (e.g., app is resumed or paused)
+  /// Called when current page is shown.
+  void onPageShow() {}
+
+  /// Called when current page is hide.
+  void onPageHide() {}
+
+  /// Called when current route is shown.
+  void onRouteShow() {}
+
+  ///  Called when current route is hide.
+  void onRouteHide() {}
+
+  /// Called when the app is going into foreground.
+  void onForeground() {}
+
+  /// Called when the app is going into background.
+  void onBackground() {}
+}
+
+/// Internal helper bridging Flutter's `RouteAware` & `WidgetsBindingObserver`
+/// protocols to the external callback surface exposed by `RouteLifecycleMixin`.
+/// Not part of the public API.
+class _RouteLifecycleHelper with ExtendedRouteAware, WidgetsBindingObserver {
+  _RouteLifecycleHelper(this._state);
+
+  final RouteLifecycleMixin _state;
+  ModalRoute<dynamic>? _modalRoute;
+
+  void init() {
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  void subscribe(ModalRoute<dynamic>? modalRoute) {
+    if (modalRoute != null) {
+      _modalRoute = modalRoute;
+      RouteObserverHolder.observer.subscribe(this, modalRoute);
+    }
+  }
+
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    if (_modalRoute != null) {
+      RouteObserverHolder.observer.unsubscribe(this);
+    }
+  }
+
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Check if this route is the current one before handling lifecycle events
-    if (_modalRoute?.isCurrent == true) {
-      // If the app comes to the foreground, call onForeground()
-      if (state == AppLifecycleState.resumed) {
-        onForeground();
-      }
-      // If the app goes to the background, call onBackground()
-      else if (state == AppLifecycleState.paused) {
-        onBackground();
+  void onPageShow() {
+    _state.onPageShow();
+  }
+
+  @override
+  void onPageHide() {
+    _state.onPageHide();
+  }
+
+  @override
+  void onRouteShow() {
+    _state.onRouteShow();
+  }
+
+  @override
+  void onRouteHide() {
+    _state.onRouteHide();
+  }
+
+  // WidgetsBindingObserver
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state_) {
+    if (_state._modalRoute?.isCurrent == true) {
+      if (state_ == AppLifecycleState.resumed) {
+        _state.onForeground();
+      } else if (state_ == AppLifecycleState.paused) {
+        _state.onBackground();
       }
     }
   }
 
-  // ExtendedRouteAware interface implementation
   @override
-  void onPageShow() {}
-
-  @override
-  void onPageHide() {}
-
-  @override
-  void onForeground() {}
-
-  @override
-  void onBackground() {}
+  bool get isPage => _state.isPage;
 }
 
-@optionalTypeArgs
-@Deprecated(
-  'Use RouteLifecycleMixin instead. This will be removed in a future version.',
-)
-// RouteLifecycleState is deprecated. Use RouteLifecycleMixin instead for better flexibility.
-//
-// Migration example:
-// Before:
-// ```dart
-// class MyPageState extends RouteLifecycleState<MyPage> { }
-// ```
-//
-// After:
-// ```dart
-// class MyPageState extends State<MyPage> with RouteLifecycleMixin { }
-// ```
+/// Deprecated style convenience base class; prefer the mixin directly.
+/// Keeping for backwards compatibility.
 abstract class RouteLifecycleState<T extends StatefulWidget> extends State<T>
     with RouteLifecycleMixin<T> {}

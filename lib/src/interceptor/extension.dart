@@ -5,7 +5,13 @@ import 'package:flutter/widgets.dart';
 
 import 'route_interceptor.dart';
 
+/// NavigatorState extension adding `*WithInterceptor` variants of common
+/// navigation methods. Each variant runs the registered interceptor chain
+/// before delegating to the underlying Navigator API. If an interceptor
+/// returns `abort`, navigation is cancelled. If it rewrites the route name /
+/// arguments, the mutated values are used.
 extension NavigatorWithInterceptorExtension on NavigatorState {
+  /// Internal helper invoking the manager; returns null if aborted.
   Future<RouteInterceptResult?> _intercept(
     String routeName, {
     Object? arguments,

@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'extension.dart';
 
-/// The Navigator static method with interceptor.
+/// NavigatorWithInterceptor
+///
+/// Static wrapper offering convenience versions of common Navigator methods
+/// that automatically apply the interceptor chain via the extension methods
+/// (see `NavigatorWithInterceptorExtension`). Prefer using those extension
+/// methods directly on a `NavigatorState` unless you require a static facade.
 class NavigatorWithInterceptor {
   NavigatorWithInterceptor._();
 

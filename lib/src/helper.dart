@@ -2,6 +2,13 @@ import 'dart:convert';
 
 import 'dart:developer';
 
+/// FFConvert
+///
+/// Simple conversion utility invoked by `asT<T>()`. Override the static
+/// `convert` field to plug in custom parsing logic for complex types or to
+/// handle non-JSON encodings.
+///
+/// Default behavior attempts `json.decode` on the string form of `value`.
 class FFConvert {
   FFConvert._();
 
@@ -18,6 +25,11 @@ class FFConvert {
   };
 }
 
+/// Attempts to coerce a dynamic value into type `T` using:
+///  * Direct `is T` check
+///  * Primitive parsing for `String`, `int`, `double`, `bool`
+///  * Fallback to `FFConvert.convert<T>`
+/// Returns `defaultValue` if parsing fails.
 T? asT<T extends Object?>(dynamic value, [T? defaultValue]) {
   if (value is T) {
     return value;

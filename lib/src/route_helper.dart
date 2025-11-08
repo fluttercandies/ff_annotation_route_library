@@ -4,6 +4,10 @@ import 'package:flutter/widgets.dart';
 import 'page.dart';
 
 /// The NavigatorObserver to listen route change
+/// FFNavigatorObserver
+///
+/// Lightweight observer that forwards route transition events through a
+/// single callback (`routeChange`). Useful for analytics or debugging.
 class FFNavigatorObserver extends NavigatorObserver {
   FFNavigatorObserver({this.routeChange});
 
@@ -47,6 +51,9 @@ typedef RouteChange = void Function(
 );
 
 /// Transparent Page Route
+/// A `PageRoute` that renders transparently (non-opaque) with a fade
+/// transition. Useful for overlays or dialogs that should not fully obscure
+/// underlying content.
 class FFTransparentPageRoute<T> extends PageRouteBuilder<T> {
   FFTransparentPageRoute({
     RouteSettings? settings,
