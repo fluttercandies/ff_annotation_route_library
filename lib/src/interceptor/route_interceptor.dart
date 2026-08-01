@@ -5,7 +5,7 @@ import 'package:ff_annotation_route_core/ff_annotation_route_core.dart';
 /// Provides a central registry for route interception logic. Interceptors can
 /// be registered globally (applied to all routes) or per-route (specific name).
 /// When `intercept(routeName)` is invoked the manager will:
-/// 1. Resolve the interceptor list: prefer route-specific list, otherwise fall back to global.
+/// 1. Resolve the interceptor list: route-specific interceptors first, then global interceptors.
 /// 2. Execute each interceptor sequentially, passing current route name + arguments.
 /// 3. Short-circuit when an interceptor returns an action other than `next`.
 /// 4. Allow an interceptor to mutate the target route name / arguments for subsequent steps.
@@ -77,16 +77,16 @@ class RouteInterceptorManager {
     _interceptorMap.clear();
   }
 
-  /// Runs the interceptors, starting with route-specific ones (if any)
-  /// and falling back to global interceptors.
+  /// Runs route-specific interceptors first, followed by global interceptors.
   /// Returns a [RouteInterceptResult] that includes the action taken by the interceptor.
   Future<RouteInterceptResult> intercept(
     String routeName, {
     Object? arguments,
   }) async {
-    // If no route-specific interceptors are found, use global interceptors.
-    final List<RouteInterceptor> interceptors =
-        _interceptorMap[routeName] ??= _interceptors;
+    final List<RouteInterceptor> interceptors = <RouteInterceptor>[
+      ...?_interceptorMap[routeName],
+      ..._interceptors,
+    ];
 
     RouteInterceptResult routeInterceptResult = RouteInterceptResult(
       action: RouteInterceptAction.complete,

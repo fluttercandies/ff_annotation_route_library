@@ -1,3 +1,7 @@
+## 3.2.4
+
+* Run global route interceptors after route-specific interceptors.
+
 ## 3.2.3
 
 * Add `RouteObserverHolder` to allow swapping the global `BaseRouteObserver` (inject a custom observer in `main()`)
